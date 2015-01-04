@@ -458,6 +458,45 @@ final class Reorder_By_Term_Helper  {
 					echo paginate_links( $pagination_args );
 					echo '</div>';
 				}
+				printf( '<h3>%s</h3>', esc_html__( 'Reorder Terms Query', 'reorder-by-term' ) );
+				printf( '<p>%s</p>', esc_html__( 'You will need custom code to query by term.  Here are some example query arguments.', 'reorder-by-term' ) );
+				/*
+					$post_query_args = array(
+			'post_type' => $post_type,
+			'order' => $order,
+			'post_status' => $post_status,
+			'posts_per_page' => 1,
+			'tax_query' => array(
+				array(
+					'taxonomy' => $tax,
+					'terms' => $term_id
+				)	
+			),
+			'orderby' => 'menu_order title',
+			'offset' => $offset
+		);
+		$tax_query_args = $post_query_args;
+		$tax_query_args[ 'meta_key' ] = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
+		$tax_query_args[ 'orderby' ] = 'meta_value_num';
+		$tax_query_args[ 'posts_per_page' ] = $posts_per_page;
+*/
+				$meta_key = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
+$query = "
+'post_type' => '{$post_type}',
+'order' => '{$order}',
+'post_status' => '{$post_status}',
+'posts_per_page' => 50,
+'tax_query' => array(
+	array(
+		'taxonomy' => '{$tax}',
+		'field' => 'slug',
+		'terms' => '{$term_slug}'	
+	)	
+),
+'meta_key' => '{$meta_key }',
+'orderby' => 'meta_value_num'
+";
+				printf( '<blockquote><pre><code>%s</code></pre></blockquote>', esc_html( print_r( $query, true ) ) );
 			} else {
 				echo sprintf( '<h3>%s</h3>	', esc_html__( 'There is nothing to sort at this time', 'metronet-reorder-posts' ) );	
 			}	
