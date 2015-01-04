@@ -25,26 +25,116 @@ final class Reorder_By_Term_Helper  {
 			$this->offset = $this->posts_per_page;	
 		}
 		
+		//Add-on actions/filters
 		add_action( 'metronet_reorder_menu_url_' . $this->post_type, array( $this, 'set_reorder_url' ) );
 		add_action( 'reorder_by_term_interface_' . $this->post_type, array( $this, 'output_interface' ) );
 		add_action( 'metronet_reorder_posts_add_menu_' . $this->post_type, array( $this, 'script_init' ) );
 		add_filter( 'metronet_reorder_posts_tabs_' . $this->post_type, array( $this, 'add_tab' ) );
 	
+		//Ajax actions
+		add_action( 'wp_ajax_term_build', array( $this, 'ajax_build_term_posts' ) );
+	}
+	
+	public function ajax_build_term_posts() {
+		global $mn_reorder_instances;
+		// Verify nonce value, for security purposes
+		if ( !wp_verify_nonce( $_POST['nonce'], 'reorder-term-build' ) ) die( '' );
+		
+		//Get variables
+		$posts_to_exclude = isset( $_POST[ 'excluded' ] ) ? array_filter( $_POST[ 'excluded' ], 'absint' ) : array();
+		$taxonomy = isset( $_POST[ 'taxonomy' ] ) ? sanitize_text_field( $_POST[ 'taxonomy' ] ) : '';
+		$term_id = isset( $_POST[ 'term_id' ] ) ? absint( $_POST[ 'term_id' ] ) : 0;
+		$menu_order_start = isset( $_POST[ 'start' ] ) ? absint( $_POST[ 'start' ] ) : 0;
+		$post_type = isset( $_POST[ 'post_type' ] ) ? sanitize_text_field( $_POST[ 'post_type' ] ) : 0;
+		
+		//Get Term Meta
+		$term = get_term_by( 'id', $term_id, $taxonomy );
+		if ( !$term ) die( '' );
+		$term_slug = $term->slug;		
+		
+		//Build Initial Return 
+		$return = array();
+		$return[ 'more_posts' ] = false;
+		$return[ 'action' ] = 'term_build';
+		$return[ 'nonce' ] = sanitize_text_field( $_POST[ 'nonce' ] );
+		$return[ 'taxonomy'] = $taxonomy;
+		$return[ 'term_id' ] = $term_id;
+		$return[ 'post_type' ] = $post_type;
+		
+		//Build query
+		$reorder_class = isset( $mn_reorder_instances[ $post_type ] ) ? $mn_reorder_instances[ $post_type ] : false;
+		$post_status = 'publish';
+		$order = 'ASC';
+		if ( $reorder_class ) {
+			$post_status = $reorder_class->get_post_status();
+			$order = $reorder_class->get_post_order();	
+		}
+		//Get posts that do not have the custom field
+		$post_query_args = array(
+			'post_type' => $post_type,
+			'order' => $order,
+			'post_status' => $post_status,
+			'posts_per_page' => 50,
+			'tax_query' => array(
+				array(
+					'taxonomy' => $taxonomy,
+					'terms' => $term_id
+				)	
+			),
+			'orderby' => 'menu_order title',
+			'meta_query' => array(
+				array(
+					'key' => sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ),
+					'compare' => 'NOT EXISTS'
+				)	
+			),
+			'post__not_in' => $posts_to_exclude
+		);
+		$posts = new WP_Query( $post_query_args );
+		$start = $menu_order_start;
+		if ( $posts->have_posts() ) {
+			foreach( $posts->posts as $post ) {
+				update_post_meta( $post->ID, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), $start );
+				$posts_to_exclude[] = $post->ID;
+				$start++;
+			}
+			$return[ 'excluded' ] = $posts_to_exclude;
+			$return[ 'start' ] = $start;
+			if ( $posts->max_num_pages > 1 ) {
+				$return[ 'more_posts' ] = true;	
+			} else {
+				$return[ 'more_posts' ] = false;	
+			}
+			die( json_encode( $return ) );
+		} else {
+			die( json_encode( $return ) );
+		}
+		
 	}
 	
 	public function print_scripts() {
 		//Overwrite action variable by de-registering sort script and adding it back in
 		if ( isset( $_GET[ 'tab' ] ) && 'reorder-term' == $_GET[ 'tab' ] ) {
+			//Main Reorder Script
 			wp_deregister_script( 'reorder_posts' );
 			wp_enqueue_script( 'reorder_posts', REORDER_URL . '/scripts/sort.js', array( 'reorder_nested' ) ); //CONSTANT REORDER_URL defined in Metronet Reorder Posts
-			wp_enqueue_script( 'reorder_terms', plugins_url( '/js/main.js', __FILE__ ), array( 'reorder_posts' ) );
 			wp_localize_script( 'reorder_posts', 'reorder_posts', array(
 				'action' => 'term_sort',
 				'expand' => esc_js( __( 'Expand', 'metronet-reorder-posts' ) ),
 				'collapse' => esc_js( __( 'Collapse', 'metronet-reorder-posts' ) ),
 				'sortnonce' =>  wp_create_nonce( 'sortnonce' ),
-				'hierarchical' => is_post_type_hierarchical( $this->post_type ) ? 'true' : 'false',
+				'hierarchical' => false,
 			) );	
+			
+			//Main Term Script
+			wp_enqueue_script( 'reorder_terms', plugins_url( '/js/main.js', __FILE__ ), array( 'reorder_posts' ) );
+			wp_localize_script( 'reorder_terms', 'reorder_terms', array(
+				'action' => 'term_build',
+				'loading_text' => __( 'Loading...  Do not Refresh', 'reorder-by-term' ),
+				'refreshing_text' => __( 'Refreshing...', 'reorder-by-term' ),
+				'sortnonce' =>  wp_create_nonce( 'reorder-term-build' ),
+			) );
+			
 		}
 	}
 	
@@ -163,6 +253,10 @@ final class Reorder_By_Term_Helper  {
 			$offset = $main_offset * ( $page - 1 );
 		}
 		printf( '<input type="hidden" id="reorder-offset" value="%s" />', absint( $offset ) );
+		printf( '<input type="hidden" id="reorder-tax-name" value="%s" />', esc_attr( $tax ) );
+		printf( '<input type="hidden" id="reorder-term-id" value="%s" />', absint( $term_id ) );
+		printf( '<input type="hidden" id="reorder-post-type" value="%s" />', esc_attr( $post_type ) );
+		
 		$post_query_args = array(
 			'post_type' => $post_type,
 			'order' => $order,
@@ -190,13 +284,57 @@ final class Reorder_By_Term_Helper  {
 		$post_query_post_count = $post_query_results->found_posts;
 		$tax_query_post_count = $tax_query_results->found_posts;
 		
-		if ( $post_query_post_count > $tax_query_post_count ) {
-			
-		} else {
-			//Output Main Interface	
-		}
+		printf( '<input type="hidden" id="term-found-posts" value="%s" />', esc_attr( $tax_query_post_count ) );
 		
-		die( '<pre>' . print_r( $post_query_post_count, true ) );
+		if ( $post_query_post_count >= 1000 ) {
+			printf( '<div class="error"><p>%s</p></div>', sprintf( __( 'There are over %s posts found.  We do not recommend you sort these posts for performance reasons.', 'metronet_reorder_posts' ), number_format( $post_query_post_count ) ) );
+		}
+		if ( $post_query_post_count > $tax_query_post_count ) {
+			//Output interface for adding custom field data to posts
+			?>
+			<h3><?php esc_html_e( 'Posts were found!', 'reorder-by-term' ); ?> </h3>
+			<div class="updated"><p><?php esc_html_e( 'We found posts to display, however, we need to add some data so that we can reorder them correctly.', 'reorder-by-term' ); ?></p></div>
+			<?php submit_button( __( 'Add data to posts', 'reorder-by-term' ), 'primary', 'reorder-add-data' ); ?>
+			<?php
+		} else {
+			//Output Main Interface
+			if( $tax_query_results->have_posts() ) {
+				printf( '<h3>%s</h3>', esc_html__( 'Reorder', 'metronet-reorder-posts' ) );
+				echo '<ul id="post-list">';
+				while( $tax_query_results->have_posts() ) {
+					global $post;
+					$tax_query_results->the_post();
+					$this->output_row( $post, $tax, $term_slug );	
+				}
+				echo '</ul><!-- #post-list -->';
+				
+				//Show pagination links
+				if( $tax_query_results->max_num_pages > 1 ) {
+					echo '<div id="reorder-pagination">';
+					$current_url = add_query_arg( array( 'paged' => '%#%' ) );
+					$pagination_args = array(
+						'base' => $current_url,
+						'total' => $tax_query_results->max_num_pages,
+						'current' => ( $page == 0 ) ? 1 : $page
+					);
+					echo paginate_links( $pagination_args );
+					echo '</div>';
+				}
+			} else {
+				echo sprintf( '<h3>%s</h3>	', esc_html__( 'There is nothing to sort at this time', 'metronet-reorder-posts' ) );	
+			}	
+		}
 	} //end output_posts
+	
+	private function output_row( $post, $taxonomy, $term_slug ) {
+		global $post;
+		setup_postdata( $post );
+		$menu_order = get_post_meta( $post->ID, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), true );
+		?>
+		<li id="list_<?php the_id(); ?>" data-id="<?php the_id(); ?>" data-menu-order="<?php echo absint( $menu_order ); ?>" data-parent="<?php echo absint( $post->post_parent ); ?>" data-post-type="<?php echo esc_attr( $post->post_type ); ?>">
+			<div><?php the_title(); ?><?php echo ( defined( 'WP_DEBUG' ) && WP_DEBUG == true ) ? ' - Menu Order:' . absint( $menu_order ) : ''; ?></div>
+		</li>
+		<?php
+	} //end output_row
 }	
 	
