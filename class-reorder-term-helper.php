@@ -39,7 +39,9 @@ final class Reorder_By_Term_Helper  {
 	
 	public function ajax_term_sort() {
 		global $wpdb;
-
+		
+		if ( !current_user_can( 'edit_pages' ) ) die( '' );
+		
 		// Verify nonce value, for security purposes
 		if ( !wp_verify_nonce( $_POST['nonce'], 'sortnonce' ) ) die( '' );
 		
@@ -139,6 +141,9 @@ final class Reorder_By_Term_Helper  {
 	
 	public function ajax_build_term_posts() {
 		global $mn_reorder_instances;
+		
+		if ( !current_user_can( 'edit_pages' ) ) die( '' );
+		
 		// Verify nonce value, for security purposes
 		if ( !wp_verify_nonce( $_POST['nonce'], 'reorder-term-build' ) ) die( '' );
 		
