@@ -1,4 +1,10 @@
 <?php
+/**
+ * Reorder Post by Term Helper Class
+ * 
+ * @package    WordPress
+ * @subpackage Reorder by Term plugin
+ */
 final class Reorder_By_Term_Helper  {
 	private $post_type;
 	private $posts_per_page;
@@ -6,6 +12,17 @@ final class Reorder_By_Term_Helper  {
 	private $reorder_page;
 	private $tab_url;
 	
+	/**
+	 * Class constructor
+	 * 
+	 * Sets definitions
+	 * Adds methods to appropriate hooks
+	 * 
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @param array $args    If not set, then uses $defaults instead
+	 */
 	public function __construct( $args ) {
 		// Parse arguments
 		$defaults = array(
@@ -37,6 +54,13 @@ final class Reorder_By_Term_Helper  {
 		
 	}
 	
+	/**
+	 * Sorts the pages by term and updates the custom field order
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 */
 	public function ajax_term_sort() {
 		global $wpdb;
 		
@@ -139,6 +163,14 @@ final class Reorder_By_Term_Helper  {
 		}
 	}
 	
+	/**
+	 * Builds the initial found of posts to have a custom field order - Makes sure the posts within a taxonomy/term have a custom field present
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @global object $wpdb  The primary global database object used internally by WordPress
+	 */
 	public function ajax_build_term_posts() {
 		global $mn_reorder_instances;
 		
@@ -239,9 +271,10 @@ final class Reorder_By_Term_Helper  {
 	 * Adjust the found posts for the offset
 	 *
 	 * @author Ronald Huereca <ronald@gmail.com>
-	 * @since Reorder 1.0.0
+	 * @since 1.0.0
 	 * @access public
 	 * @returns int $found_posts Number of posts
+	 * @uses found_posts WordPress filter
 	 */
 	public function adjust_offset_pagination( $found_posts, $query ) {
 		//This sometimes will have a bug of showing an extra page, but it doesn't break anything, so leaving it for now.
@@ -252,6 +285,15 @@ final class Reorder_By_Term_Helper  {
 		return $found_posts;
 	}
 	
+	/**
+	 * Adjust the found posts for the offset
+	 *
+	 * @author Ronald Huereca <ronald@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @returns int $found_posts Number of posts
+	 * @uses found_posts WordPress filter
+	 */
 	public function print_scripts() {
 		//Overwrite action variable by de-registering sort script and adding it back in
 		if ( isset( $_GET[ 'tab' ] ) && 'reorder-term' == $_GET[ 'tab' ] ) {
@@ -278,13 +320,42 @@ final class Reorder_By_Term_Helper  {
 		}
 	}
 	
+	/**
+	 * Sets the menu location URL for Reorder Posts
+	 *
+	 * @author Ronald Huereca <ronald@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @param string $url The menu location URL
+	 * @uses metronet_reorder_menu_url_{post_type} WordPress action
+	 */
 	public function set_reorder_url( $url ) {
 		$this->reorder_page = $url;
 	}
 	
+	/**
+	 * Add our own scripts to the Reorder menu item
+	 *
+	 * @author Ronald Huereca <ronald@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @param string $menu_hook Menu hook to latch onto
+	 * @uses metronet_reorder_posts_add_menu_{post_type} WordPress filter
+	 */
 	public function script_init( $menu_hook ) {
 		add_action( 'admin_print_scripts-' . $menu_hook, array( $this, 'print_scripts' ), 20 );	
 	}
+	
+	/**
+	 * Add a custom tab to the Reorder screen
+	 *
+	 * @author Ronald Huereca <ronald@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @param array $tabs Current tabs
+	 * @return array $tabs Updated tabs
+	 * @uses metronet_reorder_posts_tabs_{post_type} WordPress filter
+	 */
 	public function add_tab( $tabs = array() ) {
 		//Make sure there are taxonomies attached to this post
 		$taxonomies = get_object_taxonomies( $this->post_type );
@@ -301,6 +372,15 @@ final class Reorder_By_Term_Helper  {
 		);
 		return $tabs;
 	}
+	
+	/**
+	 * Output the main HTML interface of taxonomy/terms/posts
+	 *
+	 * @author Ronald Huereca <ronald@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @uses reorder_by_term_interface_{post_type} WordPress action
+	 */
 	public function output_interface() {
 		//Output Taxonomies
 		$selected_tax = isset( $_GET[ 'taxonomy' ] ) ? $_GET[ 'taxonomy' ] : false;
@@ -363,6 +443,18 @@ final class Reorder_By_Term_Helper  {
 		
 	}// end output_interface
 	
+	
+	/**
+	 * Helper function for outputting the posts found within the taxonomy/term
+	 *
+	 * @author Ronald Huereca <ronald@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @param string $post_type The current post type
+	 * @param string $tax The current taxonomy
+	 * @param int $term_id The term ID
+	 * @uses output_interface method
+	 */
 	private function output_posts( $post_type, $tax, $term_id ) {
 		global $mn_reorder_instances;
 		
@@ -465,26 +557,6 @@ final class Reorder_By_Term_Helper  {
 				}
 				printf( '<h3>%s</h3>', esc_html__( 'Reorder Terms Query', 'reorder-by-term' ) );
 				printf( '<p>%s</p>', esc_html__( 'You will need custom code to query by term.  Here are some example query arguments.', 'reorder-by-term' ) );
-				/*
-					$post_query_args = array(
-			'post_type' => $post_type,
-			'order' => $order,
-			'post_status' => $post_status,
-			'posts_per_page' => 1,
-			'tax_query' => array(
-				array(
-					'taxonomy' => $tax,
-					'terms' => $term_id
-				)	
-			),
-			'orderby' => 'menu_order title',
-			'offset' => $offset
-		);
-		$tax_query_args = $post_query_args;
-		$tax_query_args[ 'meta_key' ] = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
-		$tax_query_args[ 'orderby' ] = 'meta_value_num';
-		$tax_query_args[ 'posts_per_page' ] = $posts_per_page;
-*/
 				$meta_key = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
 $query = "
 'post_type' => '{$post_type}',
@@ -508,6 +580,17 @@ $query = "
 		}
 	} //end output_posts
 	
+	/**
+	 * Outputs a post to the screen
+	 *
+	 * @author Ronald Huereca <ronald@gmail.com>
+	 * @since 1.0.0
+	 * @access private
+	 * @param object $post The WordPress Post object
+	 * @param string $taxonomy The current taxonomy
+	 * @param string $term_slug The term Slug
+	 * @uses output_posts method
+	 */
 	private function output_row( $post, $taxonomy, $term_slug ) {
 		global $post;
 		setup_postdata( $post );
@@ -519,4 +602,3 @@ $query = "
 		<?php
 	} //end output_row
 }	
-	
