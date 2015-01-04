@@ -33,6 +33,107 @@ final class Reorder_By_Term_Helper  {
 	
 		//Ajax actions
 		add_action( 'wp_ajax_term_build', array( $this, 'ajax_build_term_posts' ) );
+		add_action( 'wp_ajax_term_sort', array( $this, 'ajax_term_sort' ) );
+	}
+	
+	public function ajax_term_sort() {
+		global $wpdb;
+
+		// Verify nonce value, for security purposes
+		if ( !wp_verify_nonce( $_POST['nonce'], 'sortnonce' ) ) die( '' );
+		
+		//Get Ajax Vars
+		$post_parent = 0;
+		$menu_order_start = isset( $_POST[ 'start' ] ) ? absint( $_POST[ 'start' ] ) : 0;
+		$post_id = isset( $_POST[ 'post_id' ] ) ? absint( $_POST[ 'post_id' ] ) : 0;
+		$post_menu_order = isset( $_POST[ 'menu_order' ] ) ? absint( $_POST[ 'menu_order' ] ) : 0;
+		$posts_to_exclude = isset( $_POST[ 'excluded' ] ) ? array_filter( $_POST[ 'excluded' ], 'absint' ) : array();
+		$post_type = isset( $_POST[ 'post_type' ] ) ? sanitize_text_field( $_POST[ 'post_type' ] ) : false;
+		$attributes = isset( $_POST[ 'attributes' ] ) ? $_POST[ 'attributes' ] : array();
+		
+		$taxonomy = $term_slug = false;
+		//Get the tax and term slug
+		foreach( $attributes as $attribute_name => $attribute_value ) {
+			if ( 'data-taxonomy' == $attribute_name ) {
+				$taxonomy = sanitize_text_field( $attribute_value );
+			} elseif ( 'data-term' == $attribute_name ) {
+				$term_slug = sanitize_text_field( $attribute_value );	
+			}
+		}
+		
+		if ( !$post_type || !$taxonomy || !$term_slug  ) die( '' );
+		
+		//Build Initial Return 
+		$return = array();
+		$return[ 'more_posts' ] = false;
+		$return[ 'action' ] = 'post_sort';
+		$return[ 'post_parent' ] = $post_parent;
+		$return[ 'nonce' ] = sanitize_text_field( $_POST[ 'nonce' ] );
+		$return[ 'post_id'] = $post_id;
+		$return[ 'menu_order' ] = $post_menu_order;
+		$return[ 'post_type' ] = $post_type;
+		$return[ 'attributes' ] = $attributes;
+		
+		//Update post if passed - Should run only on beginning of first iteration
+		if( $post_id > 0 && !isset( $_POST[ 'more_posts' ] ) ) {
+			update_post_meta( $post_id, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), $post_menu_order );	
+			$posts_to_exclude[] = $post_id;
+		}
+		
+		//Build query
+		$reorder_class = isset( $mn_reorder_instances[ $post_type ] ) ? $mn_reorder_instances[ $post_type ] : false;
+		$post_status = 'publish';
+		$order = 'ASC';
+		if ( $reorder_class ) {
+			$post_status = $reorder_class->get_post_status();
+			$order = $reorder_class->get_post_order();	
+		}
+		
+		//Build Query
+		$post_query_args = array(
+			'post_type' => $post_type,
+			'order' => $order,
+			'post_status' => $post_status,
+			'posts_per_page' => 50,
+			'tax_query' => array(
+				array(
+					'taxonomy' => $taxonomy,
+					'field' => 'slug',
+					'terms' => $term_slug
+				)	
+			),
+			'orderby' => 'menu_order title',
+			'post__not_in' => $posts_to_exclude,
+			'meta_key' => sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ),
+			'orderby' => 'meta_value_num',
+		);
+		$posts = new WP_Query( $post_query_args );
+		$start = $menu_order_start;
+		if ( $posts->have_posts() ) {
+			foreach( $posts->posts as $post ) {
+				//Increment start if matches menu_order and there is a post to change
+				if ( $start == $post_menu_order && $post_id > 0 ) {
+					$start++;	
+				}
+				
+				if ( $post_id != $post->ID ) {
+					//Update post and counts
+					update_post_meta( $post->ID, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), $start );	
+				}
+				$posts_to_exclude[] = $post->ID;
+				$start++;
+			}
+			$return[ 'excluded' ] = $posts_to_exclude;
+			$return[ 'start' ] = $start;
+			if ( $posts->max_num_pages > 1 ) {
+				$return[ 'more_posts' ] = true;	
+			} else {
+				$return[ 'more_posts' ] = false;	
+			}
+			die( json_encode( $return ) );
+		} else {
+			die( json_encode( $return ) );
+		}
 	}
 	
 	public function ajax_build_term_posts() {
@@ -112,6 +213,23 @@ final class Reorder_By_Term_Helper  {
 		
 	}
 	
+	/**
+	 * Adjust the found posts for the offset
+	 *
+	 * @author Ronald Huereca <ronald@gmail.com>
+	 * @since Reorder 1.0.0
+	 * @access public
+	 * @returns int $found_posts Number of posts
+	 */
+	public function adjust_offset_pagination( $found_posts, $query ) {
+		//This sometimes will have a bug of showing an extra page, but it doesn't break anything, so leaving it for now.
+		if( $found_posts > $this->posts_per_page ) {
+			$num_pages = round($found_posts / $this->offset);
+			$found_posts = (string)round( $num_pages * $this->posts_per_page );
+		}
+		return $found_posts;
+	}
+	
 	public function print_scripts() {
 		//Overwrite action variable by de-registering sort script and adding it back in
 		if ( isset( $_GET[ 'tab' ] ) && 'reorder-term' == $_GET[ 'tab' ] ) {
@@ -170,7 +288,7 @@ final class Reorder_By_Term_Helper  {
 		<form id="reorder-taxonomy" method="get" action="<?php echo esc_url( $this->reorder_page ); ?>">
 		<?php 
 		foreach( $_GET as $key => $value ) {
-				if ( 'term' == $key || 'taxonomy' == $key ) continue;
+				if ( 'term' == $key || 'taxonomy' == $key || 'paged' == $key ) continue;
 				printf( '<input type="hidden" value="%s" name="%s" />', esc_attr( $value ), esc_attr( $key ) );
 		}
 		?>
@@ -196,7 +314,7 @@ final class Reorder_By_Term_Helper  {
 				<form id="reorder-term" method="get" action="<?php echo esc_url( $this->reorder_page ); ?>">
 				<?php 
 				foreach( $_GET as $key => $value ) {
-						if ( 'term' == $key ) continue;
+						if ( 'term' == $key || 'paged' == $key ) continue;
 						printf( '<input type="hidden" value="%s" name="%s" />', esc_attr( $value ), esc_attr( $key ) );
 				}
 				?>
@@ -238,15 +356,14 @@ final class Reorder_By_Term_Helper  {
 		$reorder_class = isset( $mn_reorder_instances[ $post_type ] ) ? $mn_reorder_instances[ $post_type ] : false;
 		$post_status = 'publish';
 		$order = 'ASC';
-		$main_offset = 48;
-		$posts_per_page = 50;
+		$main_offset = $this->offset;
+		$posts_per_page = $this->posts_per_page;
 		if ( $reorder_class ) {
 			$post_status = $reorder_class->get_post_status();
 			$order = $reorder_class->get_post_order();	
-			$offset = $reorder_class->get_offset();
-			$posts_per_page = $reorder_class->get_posts_per_page();
 		}
 		$page = isset( $_GET[ 'paged' ] ) ? absint( $_GET[ 'paged' ] ) : 0;
+		$offset = 0;
 		if ( $page == 0 ) {
 			$offset = 0;	
 		} elseif ( $page > 1 ) {
@@ -269,21 +386,22 @@ final class Reorder_By_Term_Helper  {
 				)	
 			),
 			'orderby' => 'menu_order title',
+			'offset' => $offset
 		);
 		$tax_query_args = $post_query_args;
 		$tax_query_args[ 'meta_key' ] = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
 		$tax_query_args[ 'orderby' ] = 'meta_value_num';
-		$tax_query_args[ 'posts_per_page' ] = $this->posts_per_page;
-		$tax_query_args[ 'offset' ] = $offset;
+		$tax_query_args[ 'posts_per_page' ] = $posts_per_page;
 		
 		//Perform Queries
+		add_filter( 'found_posts', array( $this, 'adjust_offset_pagination' ), 10, 2 );
 		$post_query_results = new WP_Query( $post_query_args );
 		$tax_query_results = new WP_Query( $tax_query_args );
+		remove_filter( 'found_posts', array( $this, 'adjust_offset_pagination' ), 10, 2 );
 		
 		//Get post counts for both queries
 		$post_query_post_count = $post_query_results->found_posts;
 		$tax_query_post_count = $tax_query_results->found_posts;
-		
 		printf( '<input type="hidden" id="term-found-posts" value="%s" />', esc_attr( $tax_query_post_count ) );
 		
 		if ( $post_query_post_count >= 1000 ) {
@@ -300,6 +418,9 @@ final class Reorder_By_Term_Helper  {
 			//Output Main Interface
 			if( $tax_query_results->have_posts() ) {
 				printf( '<h3>%s</h3>', esc_html__( 'Reorder', 'metronet-reorder-posts' ) );
+				?>
+				<div><img src="<?php echo esc_url( admin_url( 'images/loading.gif' ) ); ?>" id="loading-animation" /></div>
+				<?php
 				echo '<ul id="post-list">';
 				while( $tax_query_results->have_posts() ) {
 					global $post;
@@ -331,7 +452,7 @@ final class Reorder_By_Term_Helper  {
 		setup_postdata( $post );
 		$menu_order = get_post_meta( $post->ID, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), true );
 		?>
-		<li id="list_<?php the_id(); ?>" data-id="<?php the_id(); ?>" data-menu-order="<?php echo absint( $menu_order ); ?>" data-parent="<?php echo absint( $post->post_parent ); ?>" data-post-type="<?php echo esc_attr( $post->post_type ); ?>">
+		<li id="list_<?php the_id(); ?>" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>" data-term="<?php echo esc_attr( $term_slug ); ?>" data-id="<?php the_id(); ?>" data-menu-order="<?php echo absint( $menu_order ); ?>" data-parent="0" data-post-type="<?php echo esc_attr( $post->post_type ); ?>">
 			<div><?php the_title(); ?><?php echo ( defined( 'WP_DEBUG' ) && WP_DEBUG == true ) ? ' - Menu Order:' . absint( $menu_order ) : ''; ?></div>
 		</li>
 		<?php
