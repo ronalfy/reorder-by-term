@@ -42,7 +42,7 @@ final class Reorder_By_Term {
 		//* Localization Code */
 		load_plugin_textdomain( 'reorder-by-term', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		
-		if ( !class_exists( 'MN_Reorder' ) ) {
+		if ( !class_exists( 'MN_Reorder' ) || !defined( 'REORDER_ALLOW_ADDONS' ) || ( false === REORDER_ALLOW_ADDONS ) ) {
 			add_action( 'admin_notices', array( $this, 'output_error_reorder_plugin' ) );//Output error	
 			return;
 		}
@@ -147,7 +147,7 @@ final class Reorder_By_Term {
 		if ( 'plugins.php' != $pagenow ) return;
 		?>
 		<div class="error">
-			<p><?php printf( __( 'Reorder By Term requires <a href="%s">Reorder Posts</a> to be installed.', 'reorder-by-term' ), 'https://wordpress.org/plugins/metronet-reorder-posts/' ); ?></p>
+			<p><?php printf( __( 'Reorder By Term requires <a href="%s">Reorder Posts</a> 2.1.0 or greater to be installed.', 'reorder-by-term' ), 'https://wordpress.org/plugins/metronet-reorder-posts/' ); ?></p>
 		</div>
 		<?php	
 	}
