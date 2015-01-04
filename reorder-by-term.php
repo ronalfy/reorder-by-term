@@ -35,6 +35,75 @@ final class Reorder_By_Term {
 		
 		//Main init class
 		add_action( 'metronet_reorder_post_types_loaded', array( $this, 'plugin_init' ) );
+		
+		//Add post save action
+		add_action( 'save_post', array( $this, 'add_custom_fields' ) );
+	}
+	
+	public function add_custom_fields( $post_id ) {
+		global $post;
+		if ( wp_is_post_revision( $post_id ) ) return;
+		
+		//Make sure we have a valid post object
+		if ( !is_object( $post ) ) $post = get_post( $post_id );
+		if ( !is_object( $post ) ) return;
+		
+		//Get taxonomies for da post
+		$taxonomies = get_object_taxonomies( $post );
+		if ( empty( $taxonomies ) ) return;
+		
+		//Get the terms attached to the post
+		$terms = wp_get_object_terms( $post_id, $taxonomies );
+		if ( is_wp_error( $terms ) || !is_array( $terms ) ) return;
+				
+		//Build array of terms
+		$custom_fields_to_save = array();
+		$custom_field_terms = array();
+		foreach( $terms as $term ) {
+			$custom_field_meta_key = sprintf( '_reorder_term_%s_%s', $term->taxonomy, $term->slug );
+			$custom_field_terms[] = $custom_field_meta_key;
+			$term_count = $term->count;
+			if ( $term_count > 0 ) {
+				$term_count -= 1;	
+			}
+			$custom_fields_to_save[ $custom_field_meta_key ] = array(
+				'term_id' => $term->term_id,
+				'term_slug' => $term->slug,
+				'taxonomy' => $term->taxonomy,
+				'count' => $term_count
+			);
+		}
+
+		//Get existing custom fields
+		$custom_fields = get_post_custom_keys( $post_id );
+		
+		//Loop through custom fields and see if it exists in our save array - if not, remove the post meta key
+		foreach( $custom_fields as $key => $custom_field ) {
+			if ( !in_array( $custom_field, $custom_field_terms ) && '_reorder_term_' == substr( $custom_field, 0, 14 ) ) {
+				delete_post_meta( $post_id, $custom_field );
+				unset( $custom_fields[ $key ] );
+			}
+		}
+		
+		//Loop through custom fields to save and see if custom field already exists - if so, unset it so we skip it
+		foreach( $custom_field_terms as $key => $custom_field_term ) {
+			if ( is_array( $custom_fields ) ) {
+				if ( in_array( $custom_field_term, $custom_fields ) ) {
+					unset( $custom_fields_to_save[ $custom_field_term ] );	
+				}	
+			}
+		}
+		
+		//Yay, yet another loop through our custom fiels to save and save the post meta - new term is high menu_order
+		foreach( $custom_fields_to_save as $custom_field_key => $term_info ) {
+			/* Dev note - The count is really only useful if someone has already "built" the term 
+				posts and/or has an empty WordPress install */
+			update_post_meta( $post_id, $custom_field_key, $term_info[ 'count' ] );
+		}
+		
+		//Yay, we're done
+		return; //redundant, but I don't care
+		
 	}
 	
 	public function output_error_reorder_plugin() {

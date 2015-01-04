@@ -34,6 +34,7 @@ final class Reorder_By_Term_Helper  {
 		//Ajax actions
 		add_action( 'wp_ajax_term_build', array( $this, 'ajax_build_term_posts' ) );
 		add_action( 'wp_ajax_term_sort', array( $this, 'ajax_term_sort' ) );
+		
 	}
 	
 	public function ajax_term_sort() {
@@ -162,6 +163,22 @@ final class Reorder_By_Term_Helper  {
 		$return[ 'term_id' ] = $term_id;
 		$return[ 'post_type' ] = $post_type;
 		
+		//Should run only on beginning of first iteration
+		if( !isset( $_POST[ 'more_posts' ] ) ) {
+			global $wpdb;
+			/*	Dev note:
+				This is to get rid of a use-case that someone installed the plugin and
+				saved a post with a term, but has yet to reorder these terms.
+				This attempts to get rid of any saved meta keys and re-order from scratch.
+				If someone has an existing install, and happens to go through all the posts with 
+				terms attached and re-saves them, theoretically this query should never run.
+			*/
+			//Get rid of any previous stored meta keys for taxonomy/term
+			$sql_meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug );
+			$sql = $wpdb->prepare( "delete from $wpdb->postmeta where meta_key = %s", $sql_meta_key );
+			$wpdb->query( $sql );
+		}
+		
 		//Build query
 		$reorder_class = isset( $mn_reorder_instances[ $post_type ] ) ? $mn_reorder_instances[ $post_type ] : false;
 		$post_status = 'publish';
@@ -182,7 +199,7 @@ final class Reorder_By_Term_Helper  {
 					'terms' => $term_id
 				)	
 			),
-			'orderby' => 'menu_order title',
+			'orderby' => 'title',
 			'meta_query' => array(
 				array(
 					'key' => sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ),
