@@ -10,6 +10,12 @@ Text Domain: reorder-by-term
 Domain Path: /languages
 */
 
+/**
+ * Reorder Post by Term
+ * 
+ * @package    WordPress
+ * @subpackage Reorder by Term plugin
+ */
 final class Reorder_By_Term {
 	private static $instance = null;
 	private $has_dependency = false;
@@ -22,6 +28,16 @@ final class Reorder_By_Term {
 		return self::$instance;
 	} //end get_instance
 	
+	/**
+	 * Class constructor
+	 * 
+	 * Sets definitions
+	 * Adds methods to appropriate hooks
+	 * 
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access private	
+	 */
 	private function __construct() {
 		//* Localization Code */
 		load_plugin_textdomain( 'reorder-by-term', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
@@ -76,6 +92,7 @@ final class Reorder_By_Term {
 
 		//Get existing custom fields
 		$custom_fields = get_post_custom_keys( $post_id );
+		if ( !is_array( $custom_fields ) ) $custom_fields = array();
 		
 		//Loop through custom fields and see if it exists in our save array - if not, remove the post meta key
 		foreach( $custom_fields as $key => $custom_field ) {
