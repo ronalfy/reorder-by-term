@@ -129,7 +129,6 @@ final class Reorder_By_Term_Helper  {
 					'terms' => $term_slug
 				)	
 			),
-			'orderby' => 'menu_order title',
 			'post__not_in' => $posts_to_exclude,
 			'meta_key' => sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ),
 			'orderby' => 'meta_value_num',
@@ -273,7 +272,7 @@ final class Reorder_By_Term_Helper  {
 	 * @author Ronald Huereca <ronald@gmail.com>
 	 * @since 1.0.0
 	 * @access public
-	 * @returns int $found_posts Number of posts
+	 * @returns string $found_posts Number of posts
 	 * @uses found_posts WordPress filter
 	 */
 	public function adjust_offset_pagination( $found_posts, $query ) {
@@ -286,13 +285,11 @@ final class Reorder_By_Term_Helper  {
 	}
 	
 	/**
-	 * Adjust the found posts for the offset
+	 * Print out our scripts
 	 *
 	 * @author Ronald Huereca <ronald@gmail.com>
 	 * @since 1.0.0
 	 * @access public
-	 * @returns int $found_posts Number of posts
-	 * @uses found_posts WordPress filter
 	 */
 	public function print_scripts() {
 		//Overwrite action variable by de-registering sort script and adding it back in

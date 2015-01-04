@@ -121,7 +121,7 @@ final class Reorder_By_Term {
 			}
 		}
 		
-		//Yay, yet another loop through our custom fiels to save and save the post meta - new term is high menu_order
+		//Yay, yet another loop through our custom fields to save and save the post meta - new term is high menu_order
 		foreach( $custom_fields_to_save as $custom_field_key => $term_info ) {
 			/* Dev note - The count is really only useful if someone has already "built" the term 
 				posts and/or has an empty WordPress install */
