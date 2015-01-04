@@ -56,6 +56,16 @@ final class Reorder_By_Term {
 		add_action( 'save_post', array( $this, 'add_custom_fields' ) );
 	}
 	
+	/**
+	 * Saves plugin's custom fields with menu order
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @global object $post  The post object
+	 * @param int $post_id The Post ID
+	 * @uses save_post WordPress action
+	 */
 	public function add_custom_fields( $post_id ) {
 		global $post;
 		if ( wp_is_post_revision( $post_id ) ) return;
@@ -123,6 +133,15 @@ final class Reorder_By_Term {
 		
 	}
 	
+	/**
+	 * Outputs error when Metronet Reorder Posts isn't installed
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @global string $pagenow  The current admin screen
+	 * @uses admin_notices WordPress action
+	 */
 	public function output_error_reorder_plugin() {
 		global $pagenow;
 		if ( 'plugins.php' != $pagenow ) return;
@@ -133,6 +152,15 @@ final class Reorder_By_Term {
 		<?php	
 	}
 	
+	/**
+	 * Outputs error when Metronet Reorder Posts isn't installed
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @uses metronet_reorder_post_types_loaded WordPress action
+	 * @param array $post_types Array of post types to initialize
+	 */
 	public function plugin_init( $post_types = array() ) {
 			foreach( $post_types as $post_type ) {
 				new Reorder_By_Term_Helper( array( 'post_type' => $post_type ) );	
