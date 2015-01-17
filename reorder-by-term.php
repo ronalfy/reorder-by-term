@@ -54,7 +54,46 @@ final class Reorder_By_Term {
 		
 		//Add post save action
 		add_action( 'save_post', array( $this, 'add_custom_fields' ) );
+		
+		//For when Updating a Term
+		add_action( 'edit_terms', array( &$this, 'before_update_term' ), 10, 2 );
+		add_action( 'edited_term', array( &$this, 'after_update_term' ), 10, 3 );
 	}
+	
+	public function before_update_term( $term_id, $taxonomy_slug ) {
+		$term = get_term( $term_id, $taxonomy_slug, OBJECT);
+		$this->before_term_slug = $term->slug;
+		$this->before_term_tax = $taxonomy_slug;	
+	} //end before_update_term
+	
+	public function after_update_term( $term_id, $term_tax_id, $taxonomy_slug ) {
+		$term = get_term( $term_id, $taxonomy_slug, OBJECT );
+		$after_term_slug = $term->slug;
+
+		//Get old custom field meta keys and what to replace with
+		$old_meta_key = sprintf( '_reorder_term_%s_%s', $this->before_term_tax, $this->before_term_slug );
+		$new_meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy_slug, $after_term_slug );
+		if ( $old_meta_key === $new_meta_key ) return;
+	
+		//Update meta key
+		global $wpdb;
+		$wpdb->update(
+			$wpdb->postmeta,
+			array(
+				'meta_key' => 	$new_meta_key
+			),
+			array(
+				'meta_key' => $old_meta_key	
+			),
+			array(
+				'%s'	
+			),
+			array(
+				'%s'	
+			)
+		);
+		return;		
+	} //end after_update_term
 	
 	/**
 	 * Saves plugin's custom fields with menu order
