@@ -58,14 +58,64 @@ final class Reorder_By_Term {
 		//For when Updating a Term
 		add_action( 'edit_terms', array( &$this, 'before_update_term' ), 10, 2 );
 		add_action( 'edited_term', array( &$this, 'after_update_term' ), 10, 3 );
+		
+		//For when deleting a term
+		add_action( 'delete_term', array( $this, 'after_delete_term' ), 10, 4 );
 	}
 	
+	/**
+	 * Deletes custom field values when a term is deleted
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @param int $term_id The Term ID that is being updated - Should no longer exist in DB
+	 * @param int $term_tax_id The Taxonomy ID for the slug
+	 * @param string $taxonomy_slug The taxonomy slug that the term is attached to
+	 * @param object $deleted_term - Result of get_term function
+	 * @uses delete_term WordPress action
+	 */
+	public function after_delete_term( $term_id, $term_tax_id, $taxonomy_slug, $deleted_term ) {
+		$meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy_slug, $deleted_term->slug );
+		global $wpdb;
+		$wpdb->delete(
+			$wpdb->postmeta,
+			array(
+				'meta_key' => $meta_key	
+			),
+			array(
+				'%s'	
+			)
+		);
+	}
+	
+	/**
+	 * Sets class variables by reference so that we can update the custom field data when the term slug is ovewritten
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @param int $term_id The Term ID that is being updated
+	 * @param string $taxonomy_slug The taxonomy slug that the term is attached to
+	 * @uses edit_terms WordPress action
+	 */
 	public function before_update_term( $term_id, $taxonomy_slug ) {
 		$term = get_term( $term_id, $taxonomy_slug, OBJECT);
 		$this->before_term_slug = $term->slug;
 		$this->before_term_tax = $taxonomy_slug;	
 	} //end before_update_term
 	
+	/**
+	 * Updates custom field values for the term/taxonomy relationship
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.0.0
+	 * @access public
+	 * @param int $term_id The Term ID that is being updated
+	 * @param int $term_tax_id The Taxonomy ID for the slug
+	 * @param string $taxonomy_slug The taxonomy slug that the term is attached to
+	 * @uses edited_term WordPress action
+	 */
 	public function after_update_term( $term_id, $term_tax_id, $taxonomy_slug ) {
 		$term = get_term( $term_id, $taxonomy_slug, OBJECT );
 		$after_term_slug = $term->slug;
