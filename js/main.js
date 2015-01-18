@@ -6,7 +6,6 @@ jQuery ( document ).ready( function( $ ) {
 	} );
 	
 	var reorder_type_ajax_callback = function( response ) {
-		console.log( response );
 		response = jQuery.parseJSON( response );
 		if ( true == response.more_posts ) {
 			$.post( ajaxurl, response, reorder_type_ajax_callback );
@@ -31,7 +30,6 @@ jQuery ( document ).ready( function( $ ) {
 			excluded: {},
 			post_type: $( '#reorder-post-type' ).val()
 		};
-		console.log( callback_ajax_args );
 		$.post( ajaxurl, callback_ajax_args, reorder_type_ajax_callback );
 	} );
 } );

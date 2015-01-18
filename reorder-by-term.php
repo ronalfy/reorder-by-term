@@ -48,6 +48,7 @@ final class Reorder_By_Term {
 		}
 		
 		require( 'class-reorder-term-helper.php' );
+		require( 'class-reorder-term-builder.php' );
 		
 		//Main init class
 		add_action( 'metronet_reorder_post_types_loaded', array( $this, 'plugin_init' ) );
@@ -254,6 +255,7 @@ final class Reorder_By_Term {
 			foreach( $post_types as $post_type ) {
 				new Reorder_By_Term_Helper( array( 'post_type' => $post_type ) );	
 			}
+			new Reorder_By_Term_Builder();
 	}
 	
 }
