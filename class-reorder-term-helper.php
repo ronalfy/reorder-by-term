@@ -54,6 +54,18 @@ final class Reorder_By_Term_Helper  {
 		
 	}
 	
+	public function add_reorder_link_to_term_page( $actions, $term ) {
+		if ( 0 === $term->count ) return $actions;
+		$post_type = isset( $_GET[ 'post_type' ] ) ? $_GET[ 'post_type' ] : 'post';
+		if ( $post_type !== $this->post_type ) return $actions;
+		
+		$term_id = $term->term_id;
+		$taxonomy = $term->taxonomy;		
+		$reorder_url = add_query_arg( array( 'tab' => 'reorder-term', 'taxonomy' => $taxonomy, 'term' => $term_id ), $this->reorder_page );
+		$actions[ 'reorder_' . $this->post_type ] = sprintf( '<a href="%s">%s</a>', esc_url( $reorder_url ), esc_html__( 'Reorder', 'reorder-by-term' ) );
+		return $actions;
+	}
+	
 	/**
 	 * Sorts the pages by term and updates the custom field order
 	 *
@@ -328,6 +340,8 @@ final class Reorder_By_Term_Helper  {
 	 */
 	public function set_reorder_url( $url ) {
 		$this->reorder_page = $url;
+
+		
 	}
 	
 	/**
@@ -341,6 +355,13 @@ final class Reorder_By_Term_Helper  {
 	 */
 	public function script_init( $menu_hook ) {
 		add_action( 'admin_print_scripts-' . $menu_hook, array( $this, 'print_scripts' ), 20 );	
+		
+		//Taxonomy Page filters
+		$taxonomies = get_object_taxonomies( $this->post_type );
+		foreach( $taxonomies as $taxonomy ) {
+			//Filter for adding Reorder link
+			add_filter( "{$taxonomy}_row_actions", array( $this, 'add_reorder_link_to_term_page' ), 10, 2 );	
+		}
 	}
 	
 	/**

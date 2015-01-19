@@ -62,6 +62,8 @@ final class Reorder_By_Term {
 		
 		//For when deleting a term
 		add_action( 'delete_term', array( $this, 'after_delete_term' ), 10, 4 );
+		
+		
 	}
 	
 	/**
