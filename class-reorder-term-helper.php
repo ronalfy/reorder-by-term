@@ -522,8 +522,8 @@ final class Reorder_By_Term_Helper  {
 			//Output interface for adding custom field data to posts
 			?>
 			<h3><?php esc_html_e( 'Posts were found!', 'reorder-by-term' ); ?> </h3>
-			<div class="updated"><p><?php esc_html_e( 'We found posts to display, however, we need to add some data so that we can reorder them correctly.', 'reorder-by-term' ); ?></p></div>
-			<?php submit_button( __( 'Add data to posts', 'reorder-by-term' ), 'primary', 'reorder-add-data' ); ?>
+			<div class="updated"><p><?php esc_html_e( 'We found posts to display, however, we need to build the term data to reorder them correctly.', 'reorder-by-term' ); ?>&nbsp;<?php printf( '<a href="%s">%s</a>', esc_url( admin_url( 'tools.php?page=reorder-by-term' ) ), esc_html__( 'Build the Term Data Now.', 'reorder-by-term' ) ); ?></p></div>
+			<?php //submit_button( __( 'Add data to posts', 'reorder-by-term' ), 'primary', 'reorder-add-data' ); ?>
 			<?php
 		} else {
 			//Output Main Interface

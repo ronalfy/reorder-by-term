@@ -12,7 +12,7 @@ final class Reorder_By_Term_Builder  {
 		add_action( 'admin_menu', array( $this, 'register_admin_page' ) );
 		add_action( 'wp_ajax_reorder_build_get_taxonomies', array( $this, 'ajax_get_taxonomy_data' ) );
 		add_action( 'wp_ajax_reorder_build_term_data', array( $this, 'ajax_build_term_data' ) );
-		
+				
 	}
 	
 	public function ajax_get_taxonomy_data() {
@@ -31,12 +31,14 @@ final class Reorder_By_Term_Builder  {
 		$total_tax_count = $total_term_count = 0;
 		$return_taxonomies = array();
 		foreach( $taxonomies as $taxonomy ) {
-			$term_count = wp_count_terms( $taxonomy );
+			$term_count = wp_count_terms( $taxonomy, array( 'hide_empty' => true ) );
+			if ( 0 == $term_count ) continue; //Skip taxonomies with zero terms
 			$total_term_count += $term_count;
 			$total_tax_count += 1;
 			$return_taxonomies[] = array(
 				'name' => $taxonomy,
-				'count' => $term_count
+				'count' => $term_count,
+				'visible' => false
 			);	
 		}
 		$return = array(
@@ -46,8 +48,55 @@ final class Reorder_By_Term_Builder  {
 		die( json_encode( $return ) );
 	} //end ajax_get_taxonomy_data
 	
+	public function ajax_build_term_data() {
+		//Permissions check
+		if ( !current_user_can( 'edit_pages' ) || !wp_verify_nonce( $_POST[ 'nonce' ], 'reorder-build-terms' ) ) die( '' );
+		
+		//Get data
+		$term_count = absint( $_POST[ 'term_count' ] );
+		$term_offset = absint( $_POST[ 'term_offset' ] );
+		$taxonomy = sanitize_text_field( $_POST[ 'taxonomy' ] );
+		
+		//Get terms
+		$terms = get_terms( $taxonomy, array(
+			'offset' => $term_offset,
+			'number' => 1
+		) );
+		
+		//Loop through terms (should only be one) and get posts and build post meta
+		if ( !empty( $terms ) ) {
+			foreach( $terms as $term ) {
+				$term_slug = $term->slug;
+				$posts = get_objects_in_term( $term->term_id, $taxonomy );
+				foreach( $posts as $post_id ) {
+					$post_type = get_post_type( $post_id );
+					$meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug );
+					if ( !get_post_meta( $post_id, $meta_key, true ) ) {
+						add_post_meta( $post_id, $meta_key, 0, true );
+					}	
+				}
+			}
+		}
+		
+		//Build return ajax args
+		$term_offset += 1;
+		$return_ajax_args = array(
+			'term_offset' => $term_offset,
+			'taxonomy' => $taxonomy,
+			'term_count' => $term_count - $term_offset,
+			'terms_left' => true
+		);
+		if ( empty( $terms ) || $term_count === $term_offset ) {
+			$return_ajax_args[ 'terms_left' ] = false;	
+		}
+		
+		//Return args
+		die( json_encode( $return_ajax_args ) );
+		
+	} //end wp_ajax_reorder_build_term_data
+	
 	public function register_admin_page() {
-		$page_hook = add_management_page( __( 'Reorder by Term', 'reorder-by-term' ), __( 'Reorder by Term', 'reorder-by-term' ), 'edit_pages', 'reorder-by-term', array( $this, 'output_menu_html' ) );
+		$page_hook = add_management_page( __( 'Reorder by Term', 'reorder-by-term' ), __( 'Build Post Term Data', 'reorder-by-term' ), 'edit_pages', 'reorder-by-term', array( $this, 'output_menu_html' ) );
 		add_action( 'admin_print_scripts-' . $page_hook, array( $this, 'print_scripts' ) );
 	}
 	
@@ -66,7 +115,7 @@ final class Reorder_By_Term_Builder  {
 				}
 			?>
 			<h3><?php esc_html_e( 'Build Term Data', 'reorder-by-term' ); ?></h3>
-			<div class="error"><p><strong><?php esc_html_e( 'For a site with a lot of posts, this could take a while.', 'reorder-by-term' ); ?></strong></p></div>
+			<div class="error"><p><strong><?php esc_html_e( 'For a site with a lot of non-empty terms and posts, this could take a while.', 'reorder-by-term' ); ?></strong></p></div>
 			<p><?php esc_html_e( 'If you have just installed this plugin, or have had it de-activated for a while, it is highly recommended you build the terms.  This feature will go through each term one-by-one and add the appropriate post meta that will allow you to reorder posts by term.', 'reorder-by-term' ); ?></p>
 			<?php wp_nonce_field( 'reorder-build-terms', '_reorder_build_terms' ); ?>
 			<?php submit_button( __( 'Build Terms', 'reorder-by-term' ), 'primary', 'rebuild_terms_submit' ); ?>
@@ -86,7 +135,9 @@ final class Reorder_By_Term_Builder  {
 		wp_localize_script( 'reorder_by_term_builder', 'reorder_term_build', array(
 			'delete_confirm' => __( 'Delete term data?  This cannot be undone.', 'reorder-by-term' ),
 			'build_submit_message' => __( 'Building Term Data.  DO NOT REFRESH.', 'reorder-by-term' ),
-			'build_done' => __( 'Done', 'reorder-by-term' )
+			'build_done' => __( 'Done', 'reorder-by-term' ),
+			'process_update' => sprintf( __( 'Processing %s with %s terms left to process', 'reorder-by-term' ), '{tax_name}', '{term_count}' ),
+			'process_done' => __( 'Done processing', 'reorder-by-term' )
 		) );
 		//die( 'yo' );	
 	}
