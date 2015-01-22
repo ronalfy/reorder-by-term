@@ -19,6 +19,7 @@ jQuery ( document ).ready( function( $ ) {
 	//Handler for re-building custom post types in posts
 	$( "#reorder-add-data" ).click( function( e ) {
 		e.preventDefault();
+		return;
 		$( this ).prop( 'disabled', 'disabled' );
 		$( this ).val( reorder_terms.loading_text );
 		var callback_ajax_args = {

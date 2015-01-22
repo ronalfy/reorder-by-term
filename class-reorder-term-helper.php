@@ -50,7 +50,7 @@ final class Reorder_By_Term_Helper  {
 	
 		//Ajax actions
 		add_action( 'wp_ajax_term_build', array( $this, 'ajax_build_term_posts' ) );
-		add_action( 'wp_ajax_term_sort', array( $this, 'ajax_term_sort' ) );
+		add_action( 'wp_ajax_reorder_term_sort', array( $this, 'ajax_term_sort' ) );
 		
 	}
 	
@@ -105,7 +105,7 @@ final class Reorder_By_Term_Helper  {
 		//Build Initial Return 
 		$return = array();
 		$return[ 'more_posts' ] = false;
-		$return[ 'action' ] = 'post_sort';
+		$return[ 'action' ] = 'reorder_term_sort';
 		$return[ 'post_parent' ] = $post_parent;
 		$return[ 'nonce' ] = sanitize_text_field( $_POST[ 'nonce' ] );
 		$return[ 'post_id'] = $post_id;
@@ -134,16 +134,10 @@ final class Reorder_By_Term_Helper  {
 			'order' => $order,
 			'post_status' => $post_status,
 			'posts_per_page' => 50,
-			'tax_query' => array(
-				array(
-					'taxonomy' => $taxonomy,
-					'field' => 'slug',
-					'terms' => $term_slug
-				)	
-			),
 			'post__not_in' => $posts_to_exclude,
 			'meta_key' => sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ),
-			'orderby' => 'meta_value_num',
+			'orderby' => 'meta_value_num title',
+			'meta_type' => 'NUMERIC',
 		);
 		$posts = new WP_Query( $post_query_args );
 		$start = $menu_order_start;
@@ -310,7 +304,7 @@ final class Reorder_By_Term_Helper  {
 			wp_deregister_script( 'reorder_posts' );
 			wp_enqueue_script( 'reorder_posts', REORDER_URL . '/scripts/sort.js', array( 'reorder_nested' ) ); //CONSTANT REORDER_URL defined in Metronet Reorder Posts
 			wp_localize_script( 'reorder_posts', 'reorder_posts', array(
-				'action' => 'term_sort',
+				'action' => 'reorder_term_sort',
 				'expand' => esc_js( __( 'Expand', 'metronet-reorder-posts' ) ),
 				'collapse' => esc_js( __( 'Collapse', 'metronet-reorder-posts' ) ),
 				'sortnonce' =>  wp_create_nonce( 'sortnonce' ),
@@ -514,15 +508,18 @@ final class Reorder_By_Term_Helper  {
 			'tax_query' => array(
 				array(
 					'taxonomy' => $tax,
-					'terms' => $term_id
+					'terms' => $term_id,
+					'include_children' => false
 				)	
 			),
 			'orderby' => 'menu_order title',
 			'offset' => $offset
 		);
 		$tax_query_args = $post_query_args;
+		unset( $tax_query_args[ 'tax_query' ] );
+		$tax_query_args[ 'meta_type' ] = 'NUMERIC';
 		$tax_query_args[ 'meta_key' ] = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
-		$tax_query_args[ 'orderby' ] = 'meta_value_num';
+		$tax_query_args[ 'orderby' ] = 'meta_value_num title';
 		$tax_query_args[ 'posts_per_page' ] = $posts_per_page;
 		
 		//Perform Queries
