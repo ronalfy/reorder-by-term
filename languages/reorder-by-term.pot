@@ -1,0 +1,188 @@
+# WordPress Blank Pot
+# Copyright (C) 2014 ...
+# This file is distributed under the GNU General Public License v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Reorder by Term v1.0.0\n"
+"Report-Msgid-Bugs-To: Ronald Huereca <ronalfy@gmail.com>\n"
+"POT-Creation-Date: 2015-01-24 15:06-0600\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Ronald Huereca <ron@ronalfy.com>\n"
+"Language-Team: Ronald Huereca <ronalfy@gmail.com>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Textdomain-Support: yesX-Generator: Poedit 1.6.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;esc_html_e;esc_html_x:1,2c;esc_html__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_attr__;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;"
+"_x:1,2c;_n:1,2;_n_noop:1,2;__ngettext:1,2;__ngettext_noop:1,2;_c,_nc:4c,1,2\n"
+"X-Poedit-Basepath: ../\n"
+"X-Generator: Poedit 1.5.3\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: class-reorder-term-builder.php:67
+#, php-format
+msgid "Found %d taxonomies and %d terms."
+msgstr ""
+
+#: class-reorder-term-builder.php:147 class-reorder-term-builder.php:154
+#: class-reorder-term-helper.php:381
+msgid "Reorder by Term"
+msgstr ""
+
+#: class-reorder-term-builder.php:147
+msgid "Build Post Term Data"
+msgstr ""
+
+#: class-reorder-term-builder.php:161
+msgid "Term data has been deleted"
+msgstr ""
+
+#: class-reorder-term-builder.php:165
+msgid "Build Term Data"
+msgstr ""
+
+#: class-reorder-term-builder.php:166
+msgid ""
+"For a site with a lot of non-empty terms and posts, this could take a while."
+msgstr ""
+
+#: class-reorder-term-builder.php:167
+msgid ""
+"If you have just installed this plugin, or have had it de-activated for a "
+"while, it is highly recommended you build the terms.  This feature will go "
+"through each term one-by-one and add the appropriate post meta that will "
+"allow you to reorder posts by term."
+msgstr ""
+
+#: class-reorder-term-builder.php:171
+msgid ""
+"There are no terms to build.  Please check your Reorder Posts settings and "
+"make sure you have not disabled all post types."
+msgstr ""
+
+#: class-reorder-term-builder.php:174
+msgid "Include Taxonomies"
+msgstr ""
+
+#: class-reorder-term-builder.php:181
+msgid "Build Terms"
+msgstr ""
+
+#: class-reorder-term-builder.php:184 class-reorder-term-builder.php:188
+msgid "Delete Term Data"
+msgstr ""
+
+#: class-reorder-term-builder.php:185
+msgid "This will delete all of the term data created by this plugin."
+msgstr ""
+
+#: class-reorder-term-builder.php:197
+msgid "Delete term data?  This cannot be undone."
+msgstr ""
+
+#: class-reorder-term-builder.php:198
+msgid "Building Term Data.  DO NOT REFRESH."
+msgstr ""
+
+#: class-reorder-term-builder.php:199
+msgid "Done"
+msgstr ""
+
+#: class-reorder-term-builder.php:200
+#, php-format
+msgid "Processing %s with %s terms left to process"
+msgstr ""
+
+#: class-reorder-term-builder.php:201
+msgid "Done processing"
+msgstr ""
+
+#: class-reorder-term-helper.php:65 class-reorder-term-helper.php:549
+msgid "Reorder"
+msgstr ""
+
+#: class-reorder-term-helper.php:308
+msgid "Expand"
+msgstr ""
+
+#: class-reorder-term-helper.php:309
+msgid "Collapse"
+msgstr ""
+
+#: class-reorder-term-helper.php:318
+msgid "Loading...  Do not Refresh"
+msgstr ""
+
+#: class-reorder-term-helper.php:319
+msgid "Refreshing..."
+msgstr ""
+
+#: class-reorder-term-helper.php:401
+msgid "Select a Taxonomy"
+msgstr ""
+
+#: class-reorder-term-helper.php:411
+msgid "Select a taxonomy"
+msgstr ""
+
+#: class-reorder-term-helper.php:427
+msgid "Select a Term"
+msgstr ""
+
+#: class-reorder-term-helper.php:438
+msgid "Select a term"
+msgstr ""
+
+#: class-reorder-term-helper.php:452
+msgid "No terms were found"
+msgstr ""
+
+#: class-reorder-term-helper.php:476
+msgid "Invalid Term"
+msgstr ""
+
+#: class-reorder-term-helper.php:537
+#, php-format
+msgid ""
+"There are over %s posts found.  We do not recommend you sort these posts for "
+"performance reasons."
+msgstr ""
+
+#: class-reorder-term-helper.php:542
+msgid "Posts were found!"
+msgstr ""
+
+#: class-reorder-term-helper.php:543
+msgid ""
+"We found posts to display, however, we need to build the term data to "
+"reorder them correctly."
+msgstr ""
+
+#: class-reorder-term-helper.php:543
+msgid "Build the Term Data Now."
+msgstr ""
+
+#: class-reorder-term-helper.php:573
+msgid "Reorder Terms Query"
+msgstr ""
+
+#: class-reorder-term-helper.php:574
+msgid ""
+"You will need custom code to query by term.  Here are some example query "
+"arguments."
+msgstr ""
+
+#: class-reorder-term-helper.php:593
+msgid "There is nothing to sort at this time"
+msgstr ""
+
+#: reorder-by-term.php:242
+#, php-format
+msgid ""
+"Reorder By Term requires <a href=\"%s\">Reorder Posts</a> 2.1.0 or greater "
+"to be installed."
+msgstr ""
