@@ -49,7 +49,7 @@ final class Reorder_By_Term_Helper  {
 		add_filter( 'metronet_reorder_posts_tabs_' . $this->post_type, array( $this, 'add_tab' ) );
 	
 		//Ajax actions
-		add_action( 'wp_ajax_term_build', array( $this, 'ajax_build_term_posts' ) );
+		//add_action( 'wp_ajax_term_build', array( $this, 'ajax_build_term_posts' ) ); //no longer used - code left in just in case we want to enable this feature
 		add_action( 'wp_ajax_reorder_term_sort', array( $this, 'ajax_term_sort' ) );
 		
 	}
@@ -177,6 +177,7 @@ final class Reorder_By_Term_Helper  {
 	 * @global object $wpdb  The primary global database object used internally by WordPress
 	 */
 	public function ajax_build_term_posts() {
+		return; //no longer used - code left in in case we want to re-add this feature
 		global $mn_reorder_instances;
 		
 		if ( !current_user_can( 'edit_pages' ) ) die( '' );
