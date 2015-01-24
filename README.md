@@ -23,6 +23,16 @@ Features
 <li>Uses custom fields to save data, so you can use <a href="http://codex.wordpress.org/Template_Tags/get_posts">get_posts</a>, <a href="http://codex.wordpress.org/Class_Reference/WP_Query">WP_Query</a>, or <a href="http://codex.wordpress.org/Plugin_API/Action_Reference/pre_get_posts">pre_get_posts</a> to order your query correctly.</li>
 </ul>
 
+Use Cases
+----------------------
+<ol>
+<li>Set a "Featured" category and reorder posts within that category</li>
+<li>Create an employees post type with a departments taxonomy, and reorder employees within each department</li>
+<li>Create a products post type and a custom taxonomy, and reorder your products based on its category</li>
+</ul>
+
+Your imagination will give you more use-cases.  
+
 Support
 ----------------------
 
@@ -44,3 +54,57 @@ When you first install the plugin, you'll need to build term data.  Head to ```T
 Please note that this plugin <strong>does not</strong> change the order of items in the front-end.  This functionality is <strong>not</strong> core WordPress functionality, so it'll require some work on your end to get the posts to display in your theme correctly.
 
 You'll want to make use of <a href="http://codex.wordpress.org/Class_Reference/WP_Query">WP_Query</a>, <a href="http://codex.wordpress.org/Template_Tags/get_posts">get_posts</a>, or <a href="http://codex.wordpress.org/Plugin_API/Action_Reference/pre_get_posts">pre_get_posts</a> to modify query behavior on the front-end of your site.
+
+Usage
+----------------------
+
+One you have reordered the posts on the back-end, you can now display them on the front-end.
+
+The custom field structure is:  ```_reorder_term_{taxonomy}_{term_slug}```
+
+If you have a taxonomy named ```genre``` and a term slug of ```alt-rock```, your query arguments might look like this:
+
+```php
+'post_type' => 'post',
+'order' => 'ASC',
+'post_status' => 'publish',
+'posts_per_page' => 50,
+'meta_key' => '_reorder_term_genre_alt-rock',
+'orderby' => 'meta_value_num title'
+```
+
+An example query of the above taxonomy/term would be:
+```php
+<?php
+$term_posts = array(
+	'post_type' => 'post',
+	'order' => 'ASC',
+	'post_status' => 'publish',
+	'posts_per_page' => 50,
+	'meta_key' => '_reorder_term_genre_alt-rock',
+	'orderby' => 'meta_value_num title'
+);
+$term_get_posts = get_posts( $term_posts );
+foreach( $term_get_posts as $post ) {
+	echo $post->post_title . '<br />';	
+}
+?>
+```
+
+An example of doing a custom order for a taxonomy archive (assuming post type of ```post```):
+
+```php
+add_filter( 'pre_get_posts', 'reorder_terms_taxonomy_genre' );
+function reorder_terms_taxonomy_genre( $query ) {
+	if ( !$query->is_main_query() || is_admin() ) return;
+	
+	if ( $query->is_tax( 'genre' ) ) {
+		$term_slug = get_query_var( 'genre' );
+		$query->set( 'tax_query', array() );
+		$query->set( 'meta_key', '_reorder_term_genre_' . $term_slug );
+		$query->set( 'orderby', 'meta_value_num title' );
+		$query->set( 'order', 'ASC' );
+		$query->set( 'post_type', 'post' );
+	}	
+}
+```
