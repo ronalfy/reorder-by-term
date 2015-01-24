@@ -1,20 +1,10 @@
 Reorder by Term for WordPress
 =============
 
-=== Reorder by Term ===
-Contributors: ronalfy
-Author URI: https://github.com/ronalfy/reorder-by-term
-Plugin URL: https://wordpress.org/plugins/reorder-by-term/
-Requires at Least: 3.7
-Tested up to: 4.1
-Tags: reorder, re-order, posts, terms, taxonomies, term, taxonomy, post type, post-type, ajax, admin, menu_order, ordering
-Stable tag: 1.0.0
-License: GPLv3 or later
-License URI: http://www.gnu.org/licenses/gpl-3.0.html
-
 A simple and easy way to reorder your custom post types within terms in WordPress.
 
-== Description ==
+Description
+----------------------
 
 We consider Reorder By Term a <strong>developer tool</strong>. If you do not know what ```menu_order``` or custom queries are, then this plugin is likely not for you.  This is an add-on to <a href="https://wordpress.org/plugins/metronet-reorder-posts/">Reorder Posts</a> and requires <a href="https://wordpress.org/plugins/metronet-reorder-posts/">Reorder Posts 2.1.0 or greater</a>.
 
