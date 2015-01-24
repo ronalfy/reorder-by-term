@@ -6,13 +6,25 @@
  * @subpackage Reorder by Term plugin
  */
 final class Reorder_By_Term_Builder  {
-	public function __construct() {
+	private $post_types;
+	public function __construct( $post_types ) {
 		if ( !is_admin() ) return;
-		
+		$this->post_types = $post_types;
 		add_action( 'admin_menu', array( $this, 'register_admin_page' ) );
 		add_action( 'wp_ajax_reorder_build_get_taxonomies', array( $this, 'ajax_get_taxonomy_data' ) );
 		add_action( 'wp_ajax_reorder_build_term_data', array( $this, 'ajax_build_term_data' ) );
 				
+	}
+	
+	private function get_taxonomies() {
+		$return_taxonomies = array();
+		$taxonomies = get_object_taxonomies( array_keys( $this->post_types ), 'names' );
+		foreach( $taxonomies as $taxonomy_name ) {
+			if ( in_array( $taxonomy_name, array( 'nav_menu', 'link_category' ) ) ) continue;
+			$return_taxonomies[] = $taxonomy_name;	
+		}
+		$return_taxonomies = apply_filters( 'reorder_term_build_get_taxonomies', $return_taxonomies ); //Allows filtering to limit or extend taxonomies - expects an indexed array of taxonomies
+		return $return_taxonomies;
 	}
 	
 	public function ajax_get_taxonomy_data() {
@@ -117,6 +129,15 @@ final class Reorder_By_Term_Builder  {
 			<h3><?php esc_html_e( 'Build Term Data', 'reorder-by-term' ); ?></h3>
 			<div class="error"><p><strong><?php esc_html_e( 'For a site with a lot of non-empty terms and posts, this could take a while.', 'reorder-by-term' ); ?></strong></p></div>
 			<p><?php esc_html_e( 'If you have just installed this plugin, or have had it de-activated for a while, it is highly recommended you build the terms.  This feature will go through each term one-by-one and add the appropriate post meta that will allow you to reorder posts by term.', 'reorder-by-term' ); ?></p>
+			<h4><?php esc_html_e( 'Include Taxonomies', 'reorder-by-term' ); ?></h4>
+			<?php
+			$taxonomies = $this->get_taxonomies();
+			?>
+			<?php
+			foreach( $taxonomies as $taxonomy ) {
+				printf( '<input type="checkbox" id="%1$s" name="include_tax[]" value="%2$s" %3$s>&nbsp;<label for="%1$s">%4$s</label><br />', esc_attr( 'include_tax_' . $taxonomy ), esc_attr( $taxonomy ), checked( true, true, false ), esc_html( $taxonomy ) );	
+			}
+			?>
 			<?php wp_nonce_field( 'reorder-build-terms', '_reorder_build_terms' ); ?>
 			<?php submit_button( __( 'Build Terms', 'reorder-by-term' ), 'primary', 'rebuild_terms_submit' ); ?>
 			<div id="build-term-status-container"><p><strong id="build-term-status-label"></strong></p></div>
