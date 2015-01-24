@@ -63,6 +63,8 @@ Please note that this plugin <strong>does not</strong> change the order of items
 
 You'll want to make use of <a href="http://codex.wordpress.org/Class_Reference/WP_Query">WP_Query</a>, <a href="http://codex.wordpress.org/Template_Tags/get_posts">get_posts</a>, or <a href="http://codex.wordpress.org/Plugin_API/Action_Reference/pre_get_posts">pre_get_posts</a> to modify query behavior on the front-end of your site.
 
+<a href="https://github.com/ronalfy/reorder-by-term#usage">See usage for some examples.</a>
+
 == Frequently Asked Questions ==
 
 = Why must I build term data? =
