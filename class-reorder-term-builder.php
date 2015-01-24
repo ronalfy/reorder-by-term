@@ -156,7 +156,7 @@ final class Reorder_By_Term_Builder  {
 				if ( isset( $_POST[ 'delete_terms_submit' ] ) && current_user_can( 'edit_pages' ) && wp_verify_nonce(  $_REQUEST[ '_reorder_erase_term_data' ], 'reorder-erase-term-data' ) ) {
 					global $wpdb;
 					$sql = "delete from $wpdb->postmeta where left(meta_key, 14) = '_reorder_term_'";
-					$wpdb->query($sql);
+					$wpdb->query( $sql );
 					?>
 					<div class="updated"><p><strong><?php esc_html_e( 'Term data has been deleted', 'reorder-by-term' ); ?></strong></p></div>
 					<?php
@@ -200,6 +200,5 @@ final class Reorder_By_Term_Builder  {
 			'process_update' => sprintf( __( 'Processing %s with %s terms left to process', 'reorder-by-term' ), '{tax_name}', '{term_count}' ),
 			'process_done' => __( 'Done processing', 'reorder-by-term' )
 		) );
-		//die( 'yo' );	
 	}
 } //end class Reorder_By_Term_Builder
