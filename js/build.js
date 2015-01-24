@@ -10,10 +10,12 @@ jQuery( document ).ready( function( $ ) {
 		$( this ).prop( 'disabled', 'disabled' );
 		$( this ).val( reorder_term_build.build_submit_message );
 		
+		var include_taxonomies = $( "input[name='include_tax[]']:checked" ).map(function( index,element ) { return $( element ).val(); } ).toArray();
+
 		//Get taxonomies
-		$.post( ajaxurl, { action: 'reorder_build_get_taxonomies', nonce: jQuery( document.getElementById( '_reorder_build_terms' ) ).val() }, function( tax_response ) {
+		$.post( ajaxurl, { action: 'reorder_build_get_taxonomies', nonce: jQuery( document.getElementById( '_reorder_build_terms' ) ).val(), taxonomies: include_taxonomies }, function( tax_response ) {
 			tax_response =  jQuery.parseJSON( tax_response );
-			
+						
 			var $status_label = $( document.getElementById( 'build-term-status-container' ) ).addClass( 'updated' ).find( '#build-term-status-label' ).html( tax_response.return_label );
 			
 			var tax_length = tax_response.taxonomies.length;
@@ -67,6 +69,7 @@ jQuery( document ).ready( function( $ ) {
 				new_html = new_html.replace( '{term_count}', '<span class="term_count">' + value.count + '</span>' );
 				$status_label.html( beginning_html + new_html );
 			} );
+
 			tax_ajax_callback( ajax_args );
 		} );
 	} );

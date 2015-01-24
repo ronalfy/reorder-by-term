@@ -9,7 +9,17 @@ final class Reorder_By_Term_Builder  {
 	private $post_types;
 	public function __construct( $post_types ) {
 		if ( !is_admin() ) return;
-		$this->post_types = $post_types;
+		
+		//Set post types class variable
+		if ( !is_array( $post_types ) || empty( $post_types ) ) $post_types = array();
+		foreach( $post_types as $key => $post_type ) {
+			$post_type_obj = get_post_type_object( $post_type );
+			$show_ui = (bool)isset( $post_type_obj->show_ui ) ? $post_type_obj->show_ui : false;
+			if ( !$show_ui || 'attachment' === $key  ) unset( $post_types[ $key ] );
+		}
+		$this->post_types = array_keys( $post_types );
+		
+		//Register actions
 		add_action( 'admin_menu', array( $this, 'register_admin_page' ) );
 		add_action( 'wp_ajax_reorder_build_get_taxonomies', array( $this, 'ajax_get_taxonomy_data' ) );
 		add_action( 'wp_ajax_reorder_build_term_data', array( $this, 'ajax_build_term_data' ) );
@@ -18,7 +28,7 @@ final class Reorder_By_Term_Builder  {
 	
 	private function get_taxonomies() {
 		$return_taxonomies = array();
-		$taxonomies = get_object_taxonomies( array_keys( $this->post_types ), 'names' );
+		$taxonomies = get_object_taxonomies( $this->post_types, 'names' );
 		foreach( $taxonomies as $taxonomy_name ) {
 			if ( in_array( $taxonomy_name, array( 'nav_menu', 'link_category' ) ) ) continue;
 			$return_taxonomies[] = $taxonomy_name;	
@@ -31,13 +41,13 @@ final class Reorder_By_Term_Builder  {
 		//Permissions check
 		if ( !current_user_can( 'edit_pages' ) || !wp_verify_nonce( $_POST[ 'nonce' ], 'reorder-build-terms' ) ) die( '' );
 		
-		$wp_taxonomies = get_taxonomies();
+		$wp_taxonomies = (array)$_POST[ 'taxonomies' ];
+		
 		$taxonomies = array();
 		foreach( $wp_taxonomies as $taxonomy_name ) {
 			if ( in_array( $taxonomy_name, array( 'nav_menu', 'link_category' ) ) ) continue;
 			$taxonomies[] = $taxonomy_name;	
 		}
-		$taxonomies = apply_filters( 'reorder_term_build_get_taxonomies', $taxonomies ); //Allows filtering to limit or extend taxonomies - expects an indexed array of taxonomies
 		
 		//Prepare for returning
 		$total_tax_count = $total_term_count = 0;
@@ -129,18 +139,22 @@ final class Reorder_By_Term_Builder  {
 			<h3><?php esc_html_e( 'Build Term Data', 'reorder-by-term' ); ?></h3>
 			<div class="error"><p><strong><?php esc_html_e( 'For a site with a lot of non-empty terms and posts, this could take a while.', 'reorder-by-term' ); ?></strong></p></div>
 			<p><?php esc_html_e( 'If you have just installed this plugin, or have had it de-activated for a while, it is highly recommended you build the terms.  This feature will go through each term one-by-one and add the appropriate post meta that will allow you to reorder posts by term.', 'reorder-by-term' ); ?></p>
-			<h4><?php esc_html_e( 'Include Taxonomies', 'reorder-by-term' ); ?></h4>
 			<?php
 			$taxonomies = $this->get_taxonomies();
-			?>
-			<?php
-			foreach( $taxonomies as $taxonomy ) {
-				printf( '<input type="checkbox" id="%1$s" name="include_tax[]" value="%2$s" %3$s>&nbsp;<label for="%1$s">%4$s</label><br />', esc_attr( 'include_tax_' . $taxonomy ), esc_attr( $taxonomy ), checked( true, true, false ), esc_html( $taxonomy ) );	
-			}
-			?>
-			<?php wp_nonce_field( 'reorder-build-terms', '_reorder_build_terms' ); ?>
-			<?php submit_button( __( 'Build Terms', 'reorder-by-term' ), 'primary', 'rebuild_terms_submit' ); ?>
-			<div id="build-term-status-container"><p><strong id="build-term-status-label"></strong></p></div>
+			if ( !is_array( $taxonomies ) || empty( $taxonomies ) ) :
+			printf( '<p><strong>%s</strong></p>', esc_html__( 'There are no terms to build.  Please check your Reorder Posts settings and make sure you have not disabled all post types.', 'reorder-by-term' ) );
+			else:
+				?>
+				<h4><?php esc_html_e( 'Include Taxonomies', 'reorder-by-term' ); ?></h4>
+				<?php
+				foreach( $taxonomies as $taxonomy ) {
+					printf( '<input type="checkbox" id="%1$s" name="include_tax[]" value="%2$s" %3$s>&nbsp;<label for="%1$s">%4$s</label><br />', esc_attr( 'include_tax_' . $taxonomy ), esc_attr( $taxonomy ), checked( true, true, false ), esc_html( $taxonomy ) );	
+				}
+				?>
+				<?php wp_nonce_field( 'reorder-build-terms', '_reorder_build_terms' ); ?>
+				<?php submit_button( __( 'Build Terms', 'reorder-by-term' ), 'primary', 'rebuild_terms_submit' ); ?>
+				<div id="build-term-status-container"><p><strong id="build-term-status-label"></strong></p></div>
+			<?php endif; ?>
 			<h3><?php esc_html_e( 'Delete Term Data', 'reorder-by-term' ); ?></h3>
 			<div class="error"><p><strong><?php esc_html_e( 'This will delete all of the term data created by this plugin.', 'reorder-by-term' ); ?></strong></p></div>
 			<form action="" method="post">
