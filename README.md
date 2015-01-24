@@ -29,7 +29,7 @@ Use Cases
 <li>Set a "Featured" category and reorder posts within that category</li>
 <li>Create an employees post type with a departments taxonomy, and reorder employees within each department</li>
 <li>Create a products post type and a custom taxonomy, and reorder your products based on its category</li>
-</ul>
+</ol>
 
 Your imagination will give you more use-cases.  
 
