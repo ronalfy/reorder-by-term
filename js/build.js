@@ -36,6 +36,7 @@ jQuery( document ).ready( function( $ ) {
 					//See if there are any terms left in the taxonomy
 					if ( response.terms_left ) {
 						tax_ajax_args.term_offset = response.term_offset;
+						tax_ajax_args.post_ids = response.post_ids;
 						tax_ajax_callback( tax_ajax_args );
 					} else {
 						tax_current_index++;
@@ -59,7 +60,9 @@ jQuery( document ).ready( function( $ ) {
 				nonce: jQuery( document.getElementById( '_reorder_build_terms' ) ).val(),
 				term_offset: 0,
 				taxonomy: tax_response.taxonomies[ tax_current_index ].name,
-				term_count: tax_response.taxonomies[ tax_current_index].count
+				term_count: tax_response.taxonomies[ tax_current_index].count,
+				post_ids: new Array()
+				
 			};
 			//Build HTML Placeholders
 			$.each( tax_response.taxonomies, function( index, value ) {

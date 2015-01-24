@@ -78,6 +78,7 @@ final class Reorder_By_Term_Builder  {
 		$term_count = absint( $_POST[ 'term_count' ] );
 		$term_offset = absint( $_POST[ 'term_offset' ] );
 		$taxonomy = sanitize_text_field( $_POST[ 'taxonomy' ] );
+		$post_ids = (array)$_POST[ 'post_ids' ];
 		
 		//Get terms
 		$terms = get_terms( $taxonomy, array(
@@ -86,31 +87,56 @@ final class Reorder_By_Term_Builder  {
 		) );
 		
 		//Loop through terms (should only be one) and get posts and build post meta
+		$posts_return = array();
 		if ( !empty( $terms ) ) {
 			foreach( $terms as $term ) {
 				$term_slug = $term->slug;
-				$posts = get_objects_in_term( $term->term_id, $taxonomy );
-				foreach( $posts as $post_id ) {
-					$post_type = get_post_type( $post_id );
-					$meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug );
-					if ( !get_post_meta( $post_id, $meta_key, true ) ) {
-						add_post_meta( $post_id, $meta_key, 0, true );
-					}	
+				
+				//Get post ids to process
+				if ( empty( $post_ids ) ) {
+					$posts_original = get_objects_in_term( $term->term_id, $taxonomy );
+				} else {
+					$posts_original = array_filter( $post_ids, 'absint' );	
+				}
+
+				$posts_return = $posts_original;
+				//Only get 50 posts at a time
+				if ( count( $posts_original ) > 0 ) {
+					for( $i = 0; $i <= 50; $i++ ) {
+						$post_id = $posts_original[ $i ];
+						$post_type = get_post_type( $post_id );
+						if ( in_array( $post_type, $this->post_types ) ) {
+							$meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug );
+							if ( !get_post_meta( $post_id, $meta_key, true ) ) {
+								add_post_meta( $post_id, $meta_key, 0, true );
+							}
+						}
+						unset( $posts_return[ $i ] );
+					}
 				}
 			}
 		}
-		
+		$posts_return = array_values( $posts_return );
+				
 		//Build return ajax args
-		$term_offset += 1;
 		$return_ajax_args = array(
-			'term_offset' => $term_offset,
 			'taxonomy' => $taxonomy,
-			'term_count' => $term_count - $term_offset,
 			'terms_left' => true
 		);
+		if ( count( $posts_return ) > 0 ) {
+			$return_ajax_args[ 'term_offset' ] = $term_offset;
+			$return_ajax_args[ 'post_ids' ] = $posts_return;
+			$return_ajax_args[ 'more_posts' ] = true;
+		} else {
+			$term_offset += 1;
+			$return_ajax_args[ 'term_offset' ] = $term_offset;
+			$return_ajax_args[ 'post_ids' ] = array();
+			$return_ajax_args[ 'more_posts' ] = false;
+		}
 		if ( empty( $terms ) || $term_count === $term_offset ) {
 			$return_ajax_args[ 'terms_left' ] = false;	
 		}
+		$return_ajax_args[ 'term_count' ] = $term_count - $term_offset;
 		
 		//Return args
 		die( json_encode( $return_ajax_args ) );
