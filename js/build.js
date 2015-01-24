@@ -48,10 +48,7 @@ jQuery( document ).ready( function( $ ) {
 							tax_ajax_args.term_offset = 0;
 							tax_ajax_callback( tax_ajax_args );
 						}
-					}
-					
-					
-					//console.log( response );
+					}					
 				} );
 			};
 			//Build default ajax args
