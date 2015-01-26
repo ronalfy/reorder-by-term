@@ -78,7 +78,7 @@ final class Reorder_By_Term_Builder  {
 		$term_count = absint( $_POST[ 'term_count' ] );
 		$term_offset = absint( $_POST[ 'term_offset' ] );
 		$taxonomy = sanitize_text_field( $_POST[ 'taxonomy' ] );
-		$post_ids = (array)$_POST[ 'post_ids' ];
+		$post_ids = isset( $_POST[ 'post_ids' ] ) ? (array)$_POST[ 'post_ids' ] : array();
 		
 		//Get terms
 		$terms = get_terms( $taxonomy, array(
@@ -102,8 +102,8 @@ final class Reorder_By_Term_Builder  {
 				$posts_return = $posts_original;
 				//Only get 50 posts at a time
 				if ( count( $posts_original ) > 0 ) {
-					for( $i = 0; $i <= 50; $i++ ) {
-						$post_id = $posts_original[ $i ];
+					$i = 0;
+					foreach( $posts_original as $post_id ) {
 						$post_type = get_post_type( $post_id );
 						if ( in_array( $post_type, $this->post_types ) ) {
 							$meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug );
@@ -112,6 +112,10 @@ final class Reorder_By_Term_Builder  {
 							}
 						}
 						unset( $posts_return[ $i ] );
+						$i++;
+						if ( $i >= 50 ) {
+							break;
+						}
 					}
 				}
 			}
