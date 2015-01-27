@@ -108,3 +108,24 @@ function reorder_terms_taxonomy_genre( $query ) {
 	}	
 }
 ```
+
+And here's another example assuming post type of ```explore```:
+
+```php
+//Sort the Explore Categories
+add_filter( 'pre_get_posts', 'reorder_terms_taxonomy_explore' );
+function reorder_terms_taxonomy_explore( $query ) {
+	if ( !$query->is_main_query() || is_admin() ) return;
+	
+	if ( $query->is_tax( 'explore-category' ) ) {
+		
+		$term_slug = get_query_var( 'explore-category' );
+		
+		$query->set( 'tax_query', array() );
+		$query->set( 'meta_key', '_reorder_term_explore-category_' . $term_slug );
+		$query->set( 'orderby', 'meta_value_num title' );
+		$query->set( 'order', 'ASC' );
+		$query->set( 'post_type', 'explore' );
+	}	
+}
+```
