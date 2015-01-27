@@ -83,7 +83,9 @@ final class Reorder_By_Term_Builder  {
 		//Get terms
 		$terms = get_terms( $taxonomy, array(
 			'offset' => $term_offset,
-			'number' => 1
+			'number' => 1,
+			'hide_empty' => true,
+			'hierarchical' => false
 		) );
 		
 		//Loop through terms (should only be one) and get posts and build post meta
@@ -137,7 +139,7 @@ final class Reorder_By_Term_Builder  {
 			$return_ajax_args[ 'post_ids' ] = array();
 			$return_ajax_args[ 'more_posts' ] = false;
 		}
-		if ( empty( $terms ) || $term_count === $term_offset ) {
+		if ( empty( $terms ) || $term_offset >= $term_count   ) {
 			$return_ajax_args[ 'terms_left' ] = false;	
 		}
 		$return_ajax_args[ 'term_count' ] = $term_count - $term_offset;
