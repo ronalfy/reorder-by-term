@@ -36,7 +36,7 @@ Your imagination will give you more use-cases.
 Support
 ----------------------
 
-Please feel free to leave a support request here or create an <a href="https://github.com/ronalfy/reorder-by-term/issues">issue on GitHub</a>.  If you require immediate feedback, feel free to @reply us on Twitter with your support link:  <a href="https://twitter.com/ronalfy">@ronalfy</a>).  Support is always free unless you require some advanced customization out of the scope of the plugin's existing features.  We'll do our best to get with you when we can.  Please rate/review the plugin if we have helped you to show thanks for the support.
+Please feel free to create an <a href="https://github.com/ronalfy/reorder-by-term/issues">issue on GitHub</a>.  If you require immediate feedback, feel free to @reply me on Twitter with your support link:  <a href="https://twitter.com/ronalfy">@ronalfy</a>.  Support is always free unless you require some advanced customization out of the scope of the plugin's existing features.  
 
 
 Installation
@@ -105,6 +105,27 @@ function reorder_terms_taxonomy_genre( $query ) {
 		$query->set( 'orderby', 'meta_value_num title' );
 		$query->set( 'order', 'ASC' );
 		$query->set( 'post_type', 'post' );
+	}	
+}
+```
+
+And here's another example assuming post type of ```explore```:
+
+```php
+//Sort the Explore Categories
+add_filter( 'pre_get_posts', 'reorder_terms_taxonomy_explore' );
+function reorder_terms_taxonomy_explore( $query ) {
+	if ( !$query->is_main_query() || is_admin() ) return;
+	
+	if ( $query->is_tax( 'explore-category' ) ) {
+		
+		$term_slug = get_query_var( 'explore-category' );
+		
+		$query->set( 'tax_query', array() );
+		$query->set( 'meta_key', '_reorder_term_explore-category_' . $term_slug );
+		$query->set( 'orderby', 'meta_value_num title' );
+		$query->set( 'order', 'ASC' );
+		$query->set( 'post_type', 'explore' );
 	}	
 }
 ```
