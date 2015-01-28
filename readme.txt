@@ -45,7 +45,7 @@ You are welcome to help us out and <a href="https://github.com/ronalfy/reorder-b
 
 <h3>Support</h3>
 
-Please feel free to leave a support request here or create an <a href="https://github.com/ronalfy/reorder-by-term/issues">issue on GitHub</a>.  If you require immediate feedback, feel free to @reply us on Twitter with your support link:  <a href="https://twitter.com/ronalfy">@ronalfy</a>).  Support is always free unless you require some advanced customization out of the scope of the plugin's existing features.  We'll do our best to get with you when we can.  Please rate/review the plugin if we have helped you to show thanks for the support.
+Please feel free to leave a support request here or create an <a href="https://github.com/ronalfy/reorder-by-term/issues">issue on GitHub</a>.  If you require immediate feedback, feel free to @reply me on Twitter with your support link:  <a href="https://twitter.com/ronalfy">@ronalfy</a>.  Support is always free unless you require some advanced customization out of the scope of the plugin's existing features.   Please rate/review the plugin if we have helped you to show thanks for the support.
 
 
 == Installation ==
@@ -90,13 +90,18 @@ Of course, but by the nature of terms, all post structures are flat, regardless 
 This plugin requires WordPress 3.7 or above.  We urge you, however, to always use the latest version of WordPress.
 
 == Screenshots ==
-
+1.  When first installing the plugin, you'll want to head to `Tools->Build Post Term Data` to add some data to your posts to allow reordering within terms.
+2.  Convenient Reorder shortcut when browsing terms within a taxonomy.
+3.  This is an add-on to the <a href="https://wordpress.org/plugins/metronet-reorder-posts/">Reorder Posts</a> plugin.
+4.  Start by selecting a taxonomy...
+5.  Then select a term to reorder...
+6.  And let the ordering begin!
 
 == Changelog ==
 
 = 1.0.0 =
-* Released 2015-01-31
-* Initial Release
+* Released 2015-01-27
+* Initial Release.  Feedback is much appreciated!
 
 == Upgrade Notice ==
 
