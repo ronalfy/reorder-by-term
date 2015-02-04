@@ -1,5 +1,5 @@
 === Reorder by Term ===
-Contributors: ronalfy
+Contributors: ronalfy, bigwing
 Author URI: https://github.com/ronalfy/reorder-by-term
 Plugin URL: https://wordpress.org/plugins/reorder-by-term/
 Requires at Least: 3.7
