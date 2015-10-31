@@ -115,7 +115,7 @@ final class Reorder_By_Term_Helper  {
 		
 		//Update post if passed - Should run only on beginning of first iteration
 		if( $post_id > 0 && !isset( $_POST[ 'more_posts' ] ) ) {
-			update_post_meta( $post_id, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), $post_menu_order );	
+			update_post_meta( $post_id, sprintf( 'reorder_term_%s_%s', $taxonomy, $term_slug ), $post_menu_order );	
 			$posts_to_exclude[] = $post_id;
 		}
 		
@@ -135,7 +135,7 @@ final class Reorder_By_Term_Helper  {
 			'post_status' => $post_status,
 			'posts_per_page' => 50,
 			'post__not_in' => $posts_to_exclude,
-			'meta_key' => sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ),
+			'meta_key' => sprintf( 'reorder_term_%s_%s', $taxonomy, $term_slug ),
 			'orderby' => 'meta_value_num title',
 			'meta_type' => 'NUMERIC',
 		);
@@ -150,7 +150,7 @@ final class Reorder_By_Term_Helper  {
 				
 				if ( $post_id != $post->ID ) {
 					//Update post and counts
-					update_post_meta( $post->ID, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), $start );	
+					update_post_meta( $post->ID, sprintf( 'reorder_term_%s_%s', $taxonomy, $term_slug ), $start );	
 				}
 				$posts_to_exclude[] = $post->ID;
 				$start++;
@@ -217,7 +217,7 @@ final class Reorder_By_Term_Helper  {
 				terms attached and re-saves them, theoretically this query should never run.
 			*/
 			//Get rid of any previous stored meta keys for taxonomy/term
-			$sql_meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug );
+			$sql_meta_key = sprintf( 'reorder_term_%s_%s', $taxonomy, $term_slug );
 			$sql = $wpdb->prepare( "delete from $wpdb->postmeta where meta_key = %s", $sql_meta_key );
 			$wpdb->query( $sql );
 		}
@@ -245,7 +245,7 @@ final class Reorder_By_Term_Helper  {
 			'orderby' => 'title',
 			'meta_query' => array(
 				array(
-					'key' => sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ),
+					'key' => sprintf( 'reorder_term_%s_%s', $taxonomy, $term_slug ),
 					'compare' => 'NOT EXISTS'
 				)	
 			),
@@ -255,7 +255,7 @@ final class Reorder_By_Term_Helper  {
 		$start = $menu_order_start;
 		if ( $posts->have_posts() ) {
 			foreach( $posts->posts as $post ) {
-				update_post_meta( $post->ID, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), $start );
+				update_post_meta( $post->ID, sprintf( 'reorder_term_%s_%s', $taxonomy, $term_slug ), $start );
 				$posts_to_exclude[] = $post->ID;
 				$start++;
 			}
@@ -519,7 +519,7 @@ final class Reorder_By_Term_Helper  {
 		$tax_query_args = $post_query_args;
 		unset( $tax_query_args[ 'tax_query' ] );
 		$tax_query_args[ 'meta_type' ] = 'NUMERIC';
-		$tax_query_args[ 'meta_key' ] = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
+		$tax_query_args[ 'meta_key' ] = sprintf( 'reorder_term_%s_%s', $tax, $term_slug );
 		$tax_query_args[ 'orderby' ] = 'meta_value_num title';
 		$tax_query_args[ 'posts_per_page' ] = $posts_per_page;
 		
@@ -573,7 +573,7 @@ final class Reorder_By_Term_Helper  {
 				}
 				printf( '<h3>%s</h3>', esc_html__( 'Reorder Terms Query', 'reorder-by-term' ) );
 				printf( '<p>%s</p>', esc_html__( 'You will need custom code to query by term.  Here are some example query arguments.', 'reorder-by-term' ) );
-				$meta_key = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
+				$meta_key = sprintf( 'reorder_term_%s_%s', $tax, $term_slug );
 $query = "
 'post_type' => '{$post_type}',
 'order' => '{$order}',
@@ -603,7 +603,7 @@ $query = "
 	private function output_row( $post, $taxonomy, $term_slug ) {
 		global $post;
 		setup_postdata( $post );
-		$menu_order = get_post_meta( $post->ID, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), true );
+		$menu_order = get_post_meta( $post->ID, sprintf( 'reorder_term_%s_%s', $taxonomy, $term_slug ), true );
 		?>
 		<li id="list_<?php the_id(); ?>" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>" data-term="<?php echo esc_attr( $term_slug ); ?>" data-id="<?php the_id(); ?>" data-menu-order="<?php echo absint( $menu_order ); ?>" data-parent="0" data-post-type="<?php echo esc_attr( $post->post_type ); ?>">
 			<div><?php the_title(); ?><?php echo ( defined( 'REORDER_DEBUG' ) && REORDER_DEBUG == true ) ? ' - Menu Order:' . absint( $menu_order ) : ''; ?></div>

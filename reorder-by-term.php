@@ -79,7 +79,7 @@ final class Reorder_By_Term {
 	 * @uses delete_term WordPress action
 	 */
 	public function after_delete_term( $term_id, $term_tax_id, $taxonomy_slug, $deleted_term ) {
-		$meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy_slug, $deleted_term->slug );
+		$meta_key = sprintf( 'reorder_term_%s_%s', $taxonomy_slug, $deleted_term->slug );
 		global $wpdb;
 		$wpdb->delete(
 			$wpdb->postmeta,
@@ -124,8 +124,8 @@ final class Reorder_By_Term {
 		$after_term_slug = $term->slug;
 
 		//Get old custom field meta keys and what to replace with
-		$old_meta_key = sprintf( '_reorder_term_%s_%s', $this->before_term_tax, $this->before_term_slug );
-		$new_meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy_slug, $after_term_slug );
+		$old_meta_key = sprintf( 'reorder_term_%s_%s', $this->before_term_tax, $this->before_term_slug );
+		$new_meta_key = sprintf( 'reorder_term_%s_%s', $taxonomy_slug, $after_term_slug );
 		if ( $old_meta_key === $new_meta_key ) return;
 	
 		//Update meta key
@@ -178,7 +178,7 @@ final class Reorder_By_Term {
 		$custom_fields_to_save = array();
 		$custom_field_terms = array();
 		foreach( $terms as $term ) {
-			$custom_field_meta_key = sprintf( '_reorder_term_%s_%s', $term->taxonomy, $term->slug );
+			$custom_field_meta_key = sprintf( 'reorder_term_%s_%s', $term->taxonomy, $term->slug );
 			$custom_field_terms[] = $custom_field_meta_key;
 			$term_count = $term->count;
 			if ( $term_count > 0 ) {
@@ -198,7 +198,7 @@ final class Reorder_By_Term {
 		
 		//Loop through custom fields and see if it exists in our save array - if not, remove the post meta key
 		foreach( $custom_fields as $key => $custom_field ) {
-			if ( !in_array( $custom_field, $custom_field_terms ) && '_reorder_term_' == substr( $custom_field, 0, 14 ) ) {
+			if ( !in_array( $custom_field, $custom_field_terms ) && 'reorder_term_' == substr( $custom_field, 0, 14 ) ) {
 				delete_post_meta( $post_id, $custom_field );
 				unset( $custom_fields[ $key ] );
 			}

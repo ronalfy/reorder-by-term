@@ -7,5 +7,5 @@ if ( !defined('ABSPATH') && !defined('WP_UNINSTALL_PLUGIN') ) {
 }
 global $wpdb;
 
-$sql = "delete from $wpdb->postmeta where left(meta_key, 14) = '_reorder_term_'";
-$wpdb->query($sql);
+$sql = "delete from $wpdb->postmeta where left(meta_key, 14) = '_reorder_term_' OR left(meta_key, 13 ) = 'reorder_term_'";
+$wpdb->query( $sql );
