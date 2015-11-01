@@ -108,7 +108,7 @@ final class Reorder_By_Term_Builder  {
 					foreach( $posts_original as $post_id ) {
 						$post_type = get_post_type( $post_id );
 						if ( in_array( $post_type, $this->post_types ) ) {
-							$meta_key = sprintf( 'reorder_term_%s_%s', $taxonomy, $term_slug );
+							$meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug );
 							if ( !get_post_meta( $post_id, $meta_key, true ) ) {
 								add_post_meta( $post_id, $meta_key, 0, true );
 							}
@@ -161,7 +161,7 @@ final class Reorder_By_Term_Builder  {
 			<?php
 				if ( isset( $_POST[ 'delete_terms_submit' ] ) && current_user_can( 'edit_pages' ) && wp_verify_nonce(  $_REQUEST[ '_reorder_erase_term_data' ], 'reorder-erase-term-data' ) ) {
 					global $wpdb;
-					$sql = "delete from $wpdb->postmeta where left(meta_key, 14) = '_reorder_term_' OR left(meta_key, 13 ) = 'reorder_term_'";
+					$sql = "delete from $wpdb->postmeta where left(meta_key, 14) = '_reorder_term_'";
 					$wpdb->query( $sql );
 					?>
 					<div class="updated"><p><strong><?php esc_html_e( 'Term data has been deleted', 'reorder-by-term' ); ?></strong></p></div>

@@ -69,7 +69,7 @@ If you have a taxonomy named ```genre``` and a term slug of ```alt-rock```, your
 'order' => 'ASC',
 'post_status' => 'publish',
 'posts_per_page' => 50,
-'meta_key' => 'reorder_term_genre_alt-rock',
+'meta_key' => '_reorder_term_genre_alt-rock',
 'orderby' => 'meta_value_num title'
 ```
 
@@ -81,7 +81,7 @@ $term_posts = array(
 	'order' => 'ASC',
 	'post_status' => 'publish',
 	'posts_per_page' => 50,
-	'meta_key' => 'reorder_term_genre_alt-rock',
+	'meta_key' => '_reorder_term_genre_alt-rock',
 	'orderby' => 'meta_value_num title'
 );
 $term_get_posts = get_posts( $term_posts );
@@ -101,7 +101,7 @@ function reorder_terms_taxonomy_genre( $query ) {
 	if ( $query->is_tax( 'genre' ) ) {
 		$term_slug = get_query_var( 'genre' );
 		$query->set( 'tax_query', array() );
-		$query->set( 'meta_key', 'reorder_term_genre_' . $term_slug );
+		$query->set( 'meta_key', '_reorder_term_genre_' . $term_slug );
 		$query->set( 'orderby', 'meta_value_num title' );
 		$query->set( 'order', 'ASC' );
 		$query->set( 'post_type', 'post' );
@@ -122,7 +122,7 @@ function reorder_terms_taxonomy_explore( $query ) {
 		$term_slug = get_query_var( 'explore-category' );
 		
 		$query->set( 'tax_query', array() );
-		$query->set( 'meta_key', 'reorder_term_explore-category_' . $term_slug );
+		$query->set( 'meta_key', '_reorder_term_explore-category_' . $term_slug );
 		$query->set( 'orderby', 'meta_value_num title' );
 		$query->set( 'order', 'ASC' );
 		$query->set( 'post_type', 'explore' );
