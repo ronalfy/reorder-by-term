@@ -262,12 +262,28 @@ final class Reorder_By_Term {
 			new Reorder_By_Term_Builder( $post_types );
 	}
 	
+	/**
+	 * Initializes into Reorder Posts settings section to show a term query or not
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.1.0
+	 * @access public
+	 * @uses admin_init WordPress action
+	 */
 	public function reorder_posts_admin_init() {
 		add_settings_section( 'mn-reorder-by-term', _x( 'Reorder by Term', 'plugin settings heading' , 'reorder-by-term' ), '__return_empty_string', 'metronet-reorder-posts' );
 		
 		add_settings_field( 'mn-reorder-by-term-advanced', __( 'Show Terms Query', 'reorder-by-term' ), array( $this, 'add_settings_field_term_query' ), 'metronet-reorder-posts', 'mn-reorder-by-term', array( 'desc' => __( 'By default the terms query displays.', 'reorder-by-term' ) ) );
 	}
 	
+	/**
+	 * Outputs settings section for showing a term query or not
+	 *
+	 * @author Ronald Huereca <ronalfy@gmail.com>
+	 * @since 1.1.0
+	 * @access public
+	 * @uses MN_Reorder_Admin WordPress object
+	 */
 	public function add_settings_field_term_query() {
 		$options = MN_Reorder_Admin::get_instance()->get_plugin_options();
 		
