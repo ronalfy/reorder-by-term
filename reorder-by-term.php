@@ -54,7 +54,7 @@ final class Reorder_By_Term {
 		add_action( 'metronet_reorder_post_types_loaded', array( $this, 'plugin_init' ) );
 		
 		//Add post save action
-		add_action( 'save_post', array( $this, 'add_custom_fields' ) );
+		add_action( 'save_post', array( $this, 'add_custom_fields' ), 10, 2 );
 		
 		//For when Updating a Term
 		add_action( 'edit_terms', array( &$this, 'before_update_term' ), 10, 2 );
@@ -161,8 +161,7 @@ final class Reorder_By_Term {
 	 * @param int $post_id The Post ID
 	 * @uses save_post WordPress action
 	 */
-	public function add_custom_fields( $post_id ) {
-		global $post;
+	public function add_custom_fields( $post_id, $post ) {
 		if ( wp_is_post_revision( $post_id ) ) return;
 		
 		//Make sure we have a valid post object
