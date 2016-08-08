@@ -63,6 +63,9 @@ final class Reorder_By_Term {
 		//For when deleting a term
 		add_action( 'delete_term', array( $this, 'after_delete_term' ), 10, 4 );
 		
+		// Initialize admin items
+		add_action( 'admin_init', array( $this, 'reorder_posts_admin_init' ), 12, 1 );
+		
 		
 	}
 	
@@ -258,6 +261,25 @@ final class Reorder_By_Term {
 				new Reorder_By_Term_Helper( array( 'post_type' => $post_type ) );	
 			}
 			new Reorder_By_Term_Builder( $post_types );
+	}
+	
+	public function reorder_posts_admin_init() {
+		add_settings_section( 'mn-reorder-by-term', _x( 'Reorder by Term', 'plugin settings heading' , 'reorder-by-term' ), '__return_empty_string', 'metronet-reorder-posts' );
+		
+		add_settings_field( 'mn-reorder-by-term-advanced', __( 'Show Terms Query', 'reorder-by-term' ), array( $this, 'add_settings_field_term_query' ), 'metronet-reorder-posts', 'mn-reorder-by-term', array( 'desc' => __( 'By default the terms query displays.', 'reorder-by-term' ) ) );
+	}
+	
+	public function add_settings_field_term_query() {
+		$options = MN_Reorder_Admin::get_instance()->get_plugin_options();
+		
+		$selected = 'on';
+		if ( isset( $options[ 'rt_show_query' ] ) ) {
+			$selected = $options[ 'rt_show_query' ];
+		}
+				
+		printf( '<p><input type="radio" name="metronet-reorder-posts[rt_show_query]" value="on" id="rt_show_query_yes" %s />&nbsp;<label for="rt_show_query_yes">%s</label></p>', checked( 'on', $selected, false ), esc_html__( 'Yes', 'reorder-by-term' ) );
+		printf( '<p><input type="radio" name="metronet-reorder-posts[rt_show_query]" value="off" id="rt_show_query_no" %s />&nbsp;<label for="rt_show_query_no">%s</label></p>', checked( 'off', $selected, false ), esc_html__( 'No', 'reorder-by-term' ) );
+		
 	}
 	
 }

@@ -571,6 +571,8 @@ final class Reorder_By_Term_Helper  {
 					echo paginate_links( $pagination_args );
 					echo '</div>';
 				}
+				$options = MN_Reorder_Admin::get_instance()->get_plugin_options();
+				if ( ! isset( $options[ 'rt_show_query' ] ) || 'on' === $options[ 'rt_show_query' ] ):
 				printf( '<h3>%s</h3>', esc_html__( 'Reorder Terms Query', 'reorder-by-term' ) );
 				printf( '<p>%s</p>', esc_html__( 'You will need custom code to query by term.  Here are some example query arguments.', 'reorder-by-term' ) );
 				$meta_key = sprintf( '_reorder_term_%s_%s', $tax, $term_slug );
@@ -583,6 +585,7 @@ $query = "
 'orderby' => 'meta_value_num title'
 ";
 				printf( '<blockquote><pre><code>%s</code></pre></blockquote>', esc_html( print_r( $query, true ) ) );
+				endif;
 			} else {
 				echo sprintf( '<h3>%s</h3>	', esc_html__( 'There is nothing to sort at this time', 'metronet-reorder-posts' ) );	
 			}	
