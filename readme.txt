@@ -5,7 +5,7 @@ Plugin URL: https://wordpress.org/plugins/reorder-by-term/
 Requires at Least: 3.7
 Tested up to: 4.6
 Tags: reorder, re-order, posts, terms, taxonomies, term, taxonomy, post type, post-type, ajax, admin, menu_order, ordering
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://mediaron.com/contribute/
@@ -100,6 +100,10 @@ This plugin requires WordPress 3.7 or above.  We urge you, however, to always us
 
 == Changelog ==
 
+= 1.2.0 =
+* Released 2016-08-12
+* Added screen options to set posts per page
+
 = 1.1.0 =
 * Released 2016-08-08
 * Added option in `Settings->Reorder Posts` to disable the term query from displaying.
@@ -111,6 +115,9 @@ This plugin requires WordPress 3.7 or above.  We urge you, however, to always us
 * Initial Release.  Feedback is much appreciated!
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Added screen options to set posts per page
 
 = 1.1.0 =
 Added option in `Settings->Reorder Posts` to disable the term query from displaying.

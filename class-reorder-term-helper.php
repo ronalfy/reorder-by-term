@@ -24,11 +24,20 @@ final class Reorder_By_Term_Helper  {
 	 * @param array $args    If not set, then uses $defaults instead
 	 */
 	public function __construct( $args ) {
+		
+		// Get posts per page
+		$user_id = get_current_user_id();
+		$posts_per_page = get_user_meta( $user_id, 'reorder_items_per_page', true );
+		if ( ! is_numeric( $posts_per_page ) ) {
+			$posts_per_page = 50;
+		}
+		$offset = $posts_per_page - 2;
+		
 		// Parse arguments
 		$defaults = array(
 			'post_type'   => '',
-			'posts_per_page' => 50,
-			'offset' => 48
+			'posts_per_page' => $posts_per_page,
+			'offset' => $offset
 		);
 		$args = wp_parse_args( $args, $defaults );
 
