@@ -618,7 +618,11 @@ $query = "
 		$menu_order = get_post_meta( $post->ID, sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug ), true );
 		?>
 		<li id="list_<?php the_id(); ?>" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>" data-term="<?php echo esc_attr( $term_slug ); ?>" data-id="<?php the_id(); ?>" data-menu-order="<?php echo absint( $menu_order ); ?>" data-parent="0" data-post-type="<?php echo esc_attr( $post->post_type ); ?>">
-			<div><?php the_title(); ?><?php echo ( defined( 'REORDER_DEBUG' ) && REORDER_DEBUG == true ) ? ' - Menu Order:' . absint( $menu_order ) : ''; ?></div>
+			<div class="row">
+				<div class="row-content non-hierarchical">
+					<?php the_title(); ?><?php echo ( defined( 'REORDER_DEBUG' ) && REORDER_DEBUG == true ) ? ' - Menu Order:' . absint( $menu_order ) : ''; ?>
+				</div><!-- .row-content -->
+			</div><!-- .row -->
 		</li>
 		<?php
 	} //end output_row
