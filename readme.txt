@@ -3,7 +3,7 @@ Contributors: ronalfy, bigwing
 Author URI: https://github.com/ronalfy/reorder-by-term
 Plugin URL: https://wordpress.org/plugins/reorder-by-term/
 Requires at Least: 3.7
-Tested up to: 4.8
+Tested up to: 4.9
 Tags: reorder, re-order, posts, terms, taxonomies, term, taxonomy, post type, post-type, ajax, admin, menu_order, ordering
 Stable tag: 1.2.2
 License: GPLv3 or later
