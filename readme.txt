@@ -3,9 +3,9 @@ Contributors: ronalfy, bigwing
 Author URI: https://github.com/ronalfy/reorder-by-term
 Plugin URL: https://wordpress.org/plugins/reorder-by-term/
 Requires at Least: 3.7
-Tested up to: 4.9
-Tags: reorder, re-order, posts, terms, taxonomies, term, taxonomy, post type, post-type, ajax, admin, menu_order, ordering
-Stable tag: 1.2.2
+Tested up to: 5.1
+Tags: reorder, reorder by term, category
+Stable tag: 1.2.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://mediaron.com/contribute/
@@ -35,11 +35,11 @@ If you like this plugin, please help spread the word.  Rate the plugin.  Write a
 
 <h3>Translations</h3>
  None so far.
- 
+
  If you would like to contribute a translation, please leave a support request with a link to your translation.
- 
+
  <h3>Development</h3>
- 
+
  Development happens on GitHub.
 
 You are welcome to help us out and <a href="https://github.com/ronalfy/reorder-by-term">contribute on GitHub</a>.
@@ -51,7 +51,7 @@ Please feel free to leave a support request here or create an <a href="https://g
 
 == Installation ==
 
-Either install the plugin via the WordPress admin panel, or ... 
+Either install the plugin via the WordPress admin panel, or ...
 
 1. Upload `reorder-by-term` to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
@@ -100,6 +100,10 @@ This plugin requires WordPress 3.7 or above.  We urge you, however, to always us
 
 == Changelog ==
 
+= 1.2.3 =
+* Released 2019-02-16
+* Updating terms query in the back-end for better usability
+
 = 1.2.2 =
 * Released 2016-08-14
 * Major CSS overhaul
@@ -119,6 +123,9 @@ This plugin requires WordPress 3.7 or above.  We urge you, however, to always us
 * Initial Release.  Feedback is much appreciated!
 
 == Upgrade Notice ==
+
+= 1.2.3 =
+Updating terms query in the back-end
 
 = 1.2.0 =
 Added screen options to set posts per page
