@@ -533,10 +533,10 @@ final class Reorder_By_Term_Helper  {
 		$tax_query_args[ 'posts_per_page' ] = $posts_per_page;
 
 		//Perform Queries
-		add_filter( 'found_posts', array( $this, 'adjust_offset_pagination' ), 10, 2 );
+		//add_filter( 'found_posts', array( $this, 'adjust_offset_pagination' ), 10, 2 );
 		$post_query_results = new WP_Query( $post_query_args );
 		$tax_query_results = new WP_Query( $tax_query_args );
-		remove_filter( 'found_posts', array( $this, 'adjust_offset_pagination' ), 10, 2 );
+		//remove_filter( 'found_posts', array( $this, 'adjust_offset_pagination' ), 10, 2 );
 
 		//Get post counts for both queries
 		$post_query_post_count = $post_query_results->found_posts;
