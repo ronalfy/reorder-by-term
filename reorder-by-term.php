@@ -184,7 +184,7 @@ final class Reorder_By_Term {
 			$custom_field_terms[] = $custom_field_meta_key;
 			$term_count = $term->count;
 			if ( $term_count > 0 ) {
-				$term_count -= 1;
+				//$term_count -= 1;
 			}
 			$custom_fields_to_save[ $custom_field_meta_key ] = array(
 				'term_id' => $term->term_id,
@@ -195,7 +195,7 @@ final class Reorder_By_Term {
 		}
 
 		//Get existing custom fields
-		$custom_fields = get_post_custom_keys( $post_id );
+		$custom_fields = get_post_custom( $post_id );
 		if ( !is_array( $custom_fields ) ) $custom_fields = array();
 
 		//Loop through custom fields and see if it exists in our save array - if not, remove the post meta key
