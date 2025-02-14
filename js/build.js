@@ -46,6 +46,7 @@ jQuery( document ).ready( function( $ ) {
 							tax_ajax_args.taxonomy = tax_response.taxonomies[ tax_current_index ].name;
 							tax_ajax_args.term_count = tax_response.taxonomies[ tax_current_index ].count;
 							tax_ajax_args.term_offset = 0;
+							tax_ajax_args.post_ids = [];
 							tax_ajax_callback( tax_ajax_args );
 						}
 					}					

@@ -97,11 +97,18 @@ final class Reorder_By_Term_Builder  {
 				//Get post ids to process
 				if ( empty( $post_ids ) ) {
 					$posts_original = get_objects_in_term( $term->term_id, $taxonomy );
+					if ( ! is_wp_error( $posts_original ) ) {
+						$posts_original = array_map( 'absint', $posts_original );
+					} else {
+						$posts_original = array();
+					}
 				} else {
-					$posts_original = array_filter( $post_ids, 'absint' );	
+					$posts_original = array_map( 'absint', $post_ids );
 				}
 
 				$posts_return = $posts_original;
+
+				$meta_key = sprintf( '_reorder_term_%s_%s', $taxonomy, $term_slug );
 				//Only get 50 posts at a time
 				if ( count( $posts_original ) > 0 ) {
 					$i = 0;
@@ -134,8 +141,9 @@ final class Reorder_By_Term_Builder  {
 			$return_ajax_args[ 'post_ids' ] = $posts_return;
 			$return_ajax_args[ 'more_posts' ] = true;
 		} else {
-			$term_offset += 1;
+			$term_offset = 0;
 			$return_ajax_args[ 'term_offset' ] = $term_offset;
+			$return_ajax_args['terms_left'] = false;
 			$return_ajax_args[ 'post_ids' ] = array();
 			$return_ajax_args[ 'more_posts' ] = false;
 		}
