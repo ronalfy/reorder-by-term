@@ -141,9 +141,8 @@ final class Reorder_By_Term_Builder  {
 			$return_ajax_args[ 'post_ids' ] = $posts_return;
 			$return_ajax_args[ 'more_posts' ] = true;
 		} else {
-			$term_offset = 0;
+			$term_offset += 1;
 			$return_ajax_args[ 'term_offset' ] = $term_offset;
-			$return_ajax_args['terms_left'] = false;
 			$return_ajax_args[ 'post_ids' ] = array();
 			$return_ajax_args[ 'more_posts' ] = false;
 		}
