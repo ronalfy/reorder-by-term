@@ -200,9 +200,12 @@ final class Reorder_By_Term {
 
 		//Loop through custom fields and see if it exists in our save array - if not, remove the post meta key
 		foreach( $custom_fields as $key => $custom_field ) {
-			if ( !in_array( $custom_field, $custom_field_terms ) && '_reorder_term_' == substr( $custom_field, 0, 14 ) ) {
-				delete_post_meta( $post_id, $custom_field );
-				unset( $custom_fields[ $key ] );
+			// Make sure custom field is a string before checking it's string position and array status.
+			if ( is_string( $custom_field ) && strpos( $custom_field, '_reorder_term_' ) === 0 ) {
+				if ( ! in_array( $custom_field, $custom_field_terms ) ) {
+					delete_post_meta( $post_id, $custom_field );
+					unset( $custom_fields[ $key ] );
+				}
 			}
 		}
 
