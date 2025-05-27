@@ -212,7 +212,7 @@ final class Reorder_By_Term {
 		//Loop through custom fields to save and see if custom field already exists - if so, unset it so we skip it
 		foreach( $custom_field_terms as $key => $custom_field_term ) {
 			if ( is_array( $custom_fields ) ) {
-				if ( in_array( $custom_field_term, $custom_fields ) ) {
+				if ( in_array( $custom_field_term, array_keys( $custom_fields ) ) ) {
 					unset( $custom_fields_to_save[ $custom_field_term ] );
 				}
 			}
