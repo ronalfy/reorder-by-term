@@ -3,7 +3,7 @@ Contributors: ronalfy
 Author URI: https://github.com/ronalfy/reorder-by-term
 Plugin URL: https://wordpress.org/plugins/reorder-by-term/
 Requires at Least: 3.7
-Tested up to: 6.7
+Tested up to: 7.0
 Tags: reorder, reorder by term, category
 Stable tag: 1.3.1
 License: GPLv3 or later
