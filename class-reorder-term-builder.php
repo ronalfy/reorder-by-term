@@ -5,6 +5,9 @@
  * @package    WordPress
  * @subpackage Reorder by Term plugin
  */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 final class Reorder_By_Term_Builder  {
 	private $post_types;
 	public function __construct( $post_types ) {

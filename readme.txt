@@ -5,7 +5,7 @@ Plugin URL: https://wordpress.org/plugins/reorder-by-term/
 Requires at Least: 3.7
 Tested up to: 6.7
 Tags: reorder, reorder by term, category
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Donate link: https://mediaron.com/contribute/
@@ -100,6 +100,10 @@ This plugin requires WordPress 3.7 or above.  We urge you, however, to always us
 
 == Changelog ==
 
+= 1.3.1 =
+* Released 2026-03-23
+* Fixed order reset issue when saving posts.
+
 = 1.3.0 =
 * Released 2025-02-15
 * Fixing "term builder" where building terms often resulted in a mismatch, preventing reordering.
@@ -129,5 +133,5 @@ This plugin requires WordPress 3.7 or above.  We urge you, however, to always us
 
 == Upgrade Notice ==
 
-= 1.3.0 =
-Fixing "term builder" where building terms often resulted in a mismatch, preventing reordering. Resolving PHP fatal error when loading the plugin.
+= 1.3.1 =
+Fixed order reset issue when saving posts.
